@@ -1,6 +1,6 @@
 # Granular Development Milestones — LockUp
 
-This roadmap is designed for a high-commit frequency (60+ commits) and covers Mobile, Chrome Extension, and the Mascot system.
+This roadmap is designed for a high-commit frequency (60+ commits) with a focus on Mobile Excellence and Behavioral Testing.
 
 ---
 
@@ -9,95 +9,82 @@ This roadmap is designed for a high-commit frequency (60+ commits) and covers Mo
 
 ### **1.1 Project Scaffolding (5-7 Commits)** [IN PROGRESS]
 - [x] Setup Workspace directory structure (apps, packages, assets).
-- [ ] Setup Expo (Mobile) with TypeScript.
-- [ ] Setup Vite + React (Chrome Extension) workspace.
+- [ ] Setup Expo (Mobile) with TypeScript and NativeWind.
 - [ ] Configure Shared `core/` directory for Firebase logic.
-- [ ] Install and configure NativeWind (Mobile) and Tailwind (Web).
-- [x] **Mascot Concept:** Finalized "The Golem" (Stone Guardian) concept.
+- [x] **Mascot Concept:** Finalized "The Guardian Bear" (Grizzly with Lavender Visor).
+- [x] **Commit:** High-fidelity Mascot SVG Asset generated and modularized.
+- [ ] **Commit:** Initial `jest` setup for unit testing core logic.
 
 ### **1.2 Design System Implementation (8-10 Commits)**
 - Define `theme.ts` (Colors, Spacing, Typography).
 - Build `Button` component (Primary, Secondary, Ghost).
 - Build `Typography` components (Heading, Subheading, Body).
 - Build `Card` and `Badge` primitives.
-- Implement Light/Dark mode foundation.
+- **QA:** Snapshot tests for all base components.
 
 ---
 
 ## **Phase 2: The Mascot & Animation Engine**
-*Goal: Bring the app to life without performance lag.*
+*Goal: Bring "The Guardian Bear" to life.*
 
 ### **2.1 Mascot Integration (5 Commits)**
-- Integrate `lottie-react-native` and `lottie-react`.
-- **Commit:** "Idle" Sentinel animation on Dashboard.
-- **Commit:** "Focusing" animation for active sessions.
-- **Commit:** "Celebration" animation for XP gain.
-- **Commit:** "Disappointed" animation for session failure.
+- Integrate `lottie-react-native`.
+- **Commit:** "Idle" Bear animation (Slow breathing, visor pulse).
+- **Commit:** "Focusing" Bear (Sitting upright, visor bright).
+- **Commit:** "Disappointed" Bear (Looking down, visor dimmed).
+- **QA:** Performance audit (Ensure Lottie doesn't drop frames).
 
 ---
 
 ## **Phase 3: Firebase & Identity (10-12 Commits)**
-*Goal: Handle auth and the "Discipline Profile".*
+*Goal: Secure auth and data persistence.*
 
-- Setup Firebase Auth (Email/Google).
-- Create Firestore `users` schema.
-- Implement `useAuth` hook in the shared core.
-- **Commit:** User profile initialization (Level 1, 0 XP).
-- **Commit:** Auth state persistence across app restarts.
+- Setup Firebase Auth & Firestore schema.
+- Implement `useAuth` hook.
+- **Commit:** User profile initialization logic.
+- **QA:** Unit tests for Auth State transitions.
 
 ---
 
 ## **Phase 4: Core Focus Engine (Mobile)**
-*Goal: The heart of the mobile application.*
+*Goal: Build the heart of the discipline system.*
 
 ### **4.1 Session Logic (8-10 Commits)**
-- Build the `DurationPicker` and `TaskSelector`.
-- Implement the `TimerEngine` (Background-safe).
-- **Commit:** Level 1 (Flexible) session logic.
-- **Commit:** Level 2 (Commitment) with XP penalty hooks.
-- **Commit:** Level 3 (Strict) with overlay prevention logic.
+- Build the `TimerEngine` (Background-safe).
+- **Commit:** Level 1, 2, and 3 logic implementation.
+- **QA:** Stress test timer accuracy during app backgrounding.
 
-### **4.2 Mobile Enforcement (5-7 Commits)**
-- Android: Implement `UsageStats` permission flow.
-- Android: Build the "Focus Active" System Overlay.
-- iOS: Setup `FamilyControls` (Screen Time API) placeholders.
+### **4.2 Enforcement (5-7 Commits)**
+- Android: Implement `UsageStats` & `Overlay` flow.
+- **QA:** Manual testing on multiple Android versions (API 24-34).
 
 ---
 
-## **Phase 5: Chrome Extension (The "Web Guard")**
-*Goal: Cross-platform discipline enforcement.*
+## **Phase 5: Gamification & Progress**
+*Goal: The reward loop (XP, Streaks, Score).*
 
-### **5.1 Extension Core (6-8 Commits)**
-- Build the Extension Popup UI (Sync with Mobile XP).
-- Implement the `Manifest v3` background script.
-- **Commit:** Domain blocking logic (Block YouTube/Twitter).
-- **Commit:** "Focus Mode" sync between Phone and Browser.
-
----
-
-## **Phase 6: Gamification (The Reward Loop)**
-*Goal: XP, Streaks, and Discipline Score.*
-
-### **6.1 The XP Engine (6-8 Commits)**
-- Shared logic for XP calculation.
-- **Commit:** Streak counter with "Daily Reset" logic.
-- **Commit:** Discipline Score algorithm (0-1000).
-- **Commit:** Achievement unlocker system.
+### **5.1 The Logic Engine (8-10 Commits)**
+- **Commit:** Shared logic for XP and Discipline Score.
+- **Commit:** Streak counter with daily reset logic.
+- **QA:** Unit tests covering all XP/Penalty scenarios.
 
 ---
 
-## **Phase 7: Dashboard & Analytics**
+## **Phase 6: Dashboard & Analytics**
 *Goal: Visualizing growth.*
 
-- Build the `DisciplineGauge` (Circular progress).
-- Build the `WeeklyActivity` Bar Chart.
-- **Commit:** Session history list.
-- **Commit:** Mascot "Advice" bubble based on score.
+- Build the `DisciplineGauge` and `WeeklyActivity` chart.
+- **QA:** Verify data accuracy against Firestore logs.
 
 ---
 
-## **Phase 8: Polish & Launch (5-10 Commits)**
-- Haptic feedback integration.
-- Shared Element Transitions for smooth screen swaps.
-- Performance audit (Memory leak check for Lottie).
-- Final 60th Commit: "V1.0.0 Ready for Launch".
+## **Phase 7: Final Polish & Launch (5-10 Commits)**
+- Haptic feedback & smooth transitions.
+- Final 60th Commit: "V1.0.0 Production Ready".
+
+---
+
+## **Future Expansion (Backlog)**
+- Chrome Extension (Web Guard).
+- Social Leaderboards.
+- AI Discipline Coach.

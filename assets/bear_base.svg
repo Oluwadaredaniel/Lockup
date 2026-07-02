@@ -1,0 +1,177 @@
+<svg
+  id="lockup-guardian-bear"
+  viewBox="0 0 400 440"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-label="LockUp Guardian Bear"
+  role="img"
+>
+  <defs>
+    <style>
+      /* ============================================================
+         LOCKUP GUARDIAN BEAR — THEME TOKENS
+         Default (light-background) values live in :root.
+         System dark mode is respected automatically via prefers-color-scheme.
+         For manual control from code, add class="lu-light" or "lu-dark"
+         to the root <svg id="lockup-guardian-bear"> element — these
+         classes override the system preference.
+         ============================================================ */
+      :root {
+        --lu-fur:        #211C17;   /* primary fur — head, ears, body */
+        --lu-fur-deep:    #38312A;   /* inner-ear / shading tone */
+        --lu-contrast:    #F4EEE2;   /* snout patch + shield plate */
+        --lu-visor:       #5B5FEF;   /* the "focus" visor — brand accent */
+        --lu-visor-glow:  rgba(91, 95, 239, 0.35);
+        --lu-nose:        #0F0D0B;   /* nose + lock mark */
+        --lu-outline:     rgba(0, 0, 0, 0.06);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --lu-fur:        #F4EEE2;
+          --lu-fur-deep:    #DCD3BF;
+          --lu-contrast:    #14131C;
+          --lu-visor:       #7B80FF;
+          --lu-visor-glow:  rgba(123, 128, 255, 0.45);
+          --lu-nose:        #F4EEE2;
+          --lu-outline:     rgba(255, 255, 255, 0.08);
+        }
+      }
+
+      /* Manual overrides — take priority over system preference */
+      #lockup-guardian-bear.lu-light {
+        --lu-fur: #211C17;
+        --lu-fur-deep: #38312A;
+        --lu-contrast: #F4EEE2;
+        --lu-visor: #5B5FEF;
+        --lu-visor-glow: rgba(91, 95, 239, 0.35);
+        --lu-nose: #0F0D0B;
+        --lu-outline: rgba(0, 0, 0, 0.06);
+      }
+      #lockup-guardian-bear.lu-dark {
+        --lu-fur: #F4EEE2;
+        --lu-fur-deep: #DCD3BF;
+        --lu-contrast: #14131C;
+        --lu-visor: #7B80FF;
+        --lu-visor-glow: rgba(123, 128, 255, 0.45);
+        --lu-nose: #F4EEE2;
+        --lu-outline: rgba(255, 255, 255, 0.08);
+      }
+
+      /* Emotion / focus-state visor variants — toggle the "active" class
+         from JS to swap expressions, e.g.:
+           document.querySelectorAll('.visor-state').forEach(g => g.classList.remove('active'));
+           document.getElementById('visor-alert').classList.add('active'); */
+      .visor-state { display: none; }
+      .visor-state.active { display: inline; }
+    </style>
+
+    <filter id="visor-glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g id="guardian-bear-mascot">
+
+    <!-- EARS (drawn first so the head silhouette overlaps their base) -->
+    <g id="bear-ears">
+      <circle cx="128" cy="80" r="40" fill="var(--lu-fur)" stroke="var(--lu-outline)" stroke-width="2" />
+      <circle cx="272" cy="80" r="40" fill="var(--lu-fur)" stroke="var(--lu-outline)" stroke-width="2" />
+      <circle cx="128" cy="86" r="19" fill="var(--lu-fur-deep)" />
+      <circle cx="272" cy="86" r="19" fill="var(--lu-fur-deep)" />
+    </g>
+
+    <!-- BODY / SHOULDERS -->
+    <g id="bear-body">
+      <path
+        id="body-shape"
+        d="M120,300
+           C120,268 152,252 200,252
+           C248,252 280,268 280,300
+           L300,398
+           C300,424 272,440 200,440
+           C128,440 100,424 100,398
+           Z"
+        fill="var(--lu-fur)"
+        stroke="var(--lu-outline)"
+        stroke-width="2"
+      />
+
+      <!-- CHEST EMBLEM — a shield plate bearing the lock mark -->
+      <g id="chest-emblem">
+        <path
+          id="emblem-shield"
+          d="M200,332
+             L224,343
+             L224,373
+             C224,395 212,408 200,414
+             C188,408 176,395 176,373
+             L176,343
+             Z"
+          fill="var(--lu-contrast)"
+        />
+        <path
+          id="lock-shackle"
+          d="M192,364 a8,8 0 0 1 16,0 v6 h-16 z"
+          fill="none"
+          stroke="var(--lu-nose)"
+          stroke-width="3.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <rect
+          id="lock-body"
+          x="188" y="370" width="24" height="18" rx="3.5"
+          fill="var(--lu-nose)"
+        />
+      </g>
+    </g>
+
+    <!-- HEAD -->
+    <g id="bear-head">
+      <rect
+        id="head-shape"
+        x="90" y="60" width="220" height="220" rx="64"
+        fill="var(--lu-fur)"
+        stroke="var(--lu-outline)"
+        stroke-width="2"
+      />
+
+      <!-- VISOR / EYES — the primary "emotion + focus state" swap point -->
+      <g id="bear-visor" filter="url(#visor-glow)">
+
+        <!-- Default: locked-in focus -->
+        <g id="visor-focus" class="visor-state active">
+          <rect x="112" y="150" width="66" height="42" rx="21" fill="var(--lu-visor)" />
+          <rect x="222" y="150" width="66" height="42" rx="21" fill="var(--lu-visor)" />
+          <rect x="178" y="163" width="44" height="14" rx="7" fill="var(--lu-visor)" />
+        </g>
+
+        <!-- Idle / resting state -->
+        <g id="visor-idle" class="visor-state">
+          <rect x="124" y="167" width="52" height="9" rx="4.5" fill="var(--lu-visor)" opacity="0.65" />
+          <rect x="224" y="167" width="52" height="9" rx="4.5" fill="var(--lu-visor)" opacity="0.65" />
+          <rect x="178" y="167" width="44" height="9" rx="4.5" fill="var(--lu-visor)" opacity="0.35" />
+        </g>
+
+        <!-- Alert / streak-at-risk state -->
+        <g id="visor-alert" class="visor-state">
+          <rect x="108" y="146" width="74" height="50" rx="25" fill="var(--lu-visor)" />
+          <rect x="218" y="146" width="74" height="50" rx="25" fill="var(--lu-visor)" />
+          <rect x="176" y="163" width="48" height="16" rx="8" fill="var(--lu-visor)" />
+        </g>
+
+      </g>
+
+      <!-- SNOUT -->
+      <g id="bear-snout">
+        <ellipse id="snout-patch" cx="200" cy="252" rx="54" ry="40" fill="var(--lu-contrast)" />
+        <rect id="nose" x="186" y="216" width="28" height="18" rx="9" fill="var(--lu-nose)" />
+      </g>
+    </g>
+
+  </g>
+</svg>
