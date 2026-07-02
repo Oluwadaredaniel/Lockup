@@ -10,7 +10,7 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 ### **1.1 Project Scaffolding (5-7 Commits)** [IN PROGRESS]
 - [x] Setup Workspace directory structure (apps, packages, assets).
 - [ ] Setup Expo (Mobile) with TypeScript and NativeWind.
-- [ ] Configure Shared `core/` directory for Firebase logic.
+- [x] Configure Shared `core/` directory for Firebase logic and shared types.
 - [x] **Mascot Concept:** Finalized "The Guardian Bear" (Grizzly with Lavender Visor).
 - [x] **Commit:** High-fidelity Mascot SVG Asset generated and modularized.
 - [x] **Commit:** Initial `jest` setup for unit testing core logic.

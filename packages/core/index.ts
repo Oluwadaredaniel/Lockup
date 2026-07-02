@@ -3,6 +3,10 @@
  * This package is shared between the Mobile App and the Chrome Extension.
  */
 
+export * from './types';
+export * from './theme';
+export * from './firebase.config';
+
 export interface UserProfile {
   uid: string;
   name: string;
@@ -15,7 +19,6 @@ export interface UserProfile {
 
 /**
  * Calculates the discipline score based on session completion and streaks.
- * This ensures consistency across all platforms.
  */
 export const calculateDisciplineScore = (
   completedSessions: number,
@@ -36,5 +39,3 @@ export const XP_PER_LEVEL = 500;
 export const getLevelFromXP = (xp: number): number => {
   return Math.floor(xp / XP_PER_LEVEL) + 1;
 };
-
-export * from './firebase.config';
