@@ -28,7 +28,7 @@ export const calculateDisciplineScore = (
   const baseScore = (completedSessions / total) * 800;
   const streakBonus = Math.min(streakDays * 10, 200);
 
-  return Math.round(baseScore + streakBonus);
+  return Math.min(Math.round(baseScore + streakBonus), 1000);
 };
 
 export const XP_PER_LEVEL = 500;
@@ -36,3 +36,5 @@ export const XP_PER_LEVEL = 500;
 export const getLevelFromXP = (xp: number): number => {
   return Math.floor(xp / XP_PER_LEVEL) + 1;
 };
+
+export * from './firebase.config';

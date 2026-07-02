@@ -13,7 +13,7 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 - [ ] Configure Shared `core/` directory for Firebase logic.
 - [x] **Mascot Concept:** Finalized "The Guardian Bear" (Grizzly with Lavender Visor).
 - [x] **Commit:** High-fidelity Mascot SVG Asset generated and modularized.
-- [ ] **Commit:** Initial `jest` setup for unit testing core logic.
+- [x] **Commit:** Initial `jest` setup for unit testing core logic.
 
 ### **1.2 Design System Implementation (8-10 Commits)**
 - Define `theme.ts` (Colors, Spacing, Typography).
