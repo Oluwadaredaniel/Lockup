@@ -1,0 +1,12 @@
+<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Decorative Background Ring -->
+  <circle cx="200" cy="200" r="160" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="10 10" opacity="0.2" />
+
+  <!-- Geometric Timer Symbol -->
+  <circle cx="200" cy="120" r="40" stroke="#8B5CF6" stroke-width="4" />
+  <path d="M200 100V120L215 130" stroke="#8B5CF6" stroke-width="4" stroke-linecap="round" />
+
+  <!-- Bear Silhouette (Simplified for Onboarding) -->
+  <path d="M140 220C140 197.909 157.909 180 180 180H220C242.091 180 260 197.909 260 220V320C260 336.569 246.569 350 230 350H170C153.431 350 140 336.569 140 320V220Z" fill="#211C17" />
+  <rect x="160" y="215" width="80" height="15" rx="4" fill="#5B5FEF" />
+</svg>

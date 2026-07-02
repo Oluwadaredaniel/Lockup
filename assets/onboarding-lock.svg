@@ -1,0 +1,10 @@
+<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Level 1 Shield -->
+  <path d="M100 200L125 180L150 200V230L125 250L100 230V200Z" fill="#C4B5FD" opacity="0.4" />
+  <!-- Level 2 Shield -->
+  <path d="M175 180L210 155L245 180V225L210 255L175 225V180Z" fill="#8B5CF6" opacity="0.7" />
+  <!-- Level 3 Shield (The Strict Mode) -->
+  <path d="M270 160L320 125L370 160V220L320 260L270 220V160Z" fill="#5B5FEF" />
+  <path d="M310 185 a10,10 0 0 1 20,0 v10 h-20 z" fill="none" stroke="white" stroke-width="3" />
+  <rect x="305" y="195" width="30" height="20" rx="4" fill="white" />
+</svg>
