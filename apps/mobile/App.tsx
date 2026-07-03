@@ -5,8 +5,9 @@ import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { SignupScreen } from './src/screens/SignupScreen';
 import { DashboardScreen } from './src/screens/DashboardScreen';
+import { FocusSessionSetupScreen } from './src/screens/FocusSessionSetupScreen';
 
-type AppState = 'onboarding' | 'login' | 'signup' | 'dashboard';
+type AppState = 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup';
 
 const Main = () => {
   const { theme } = useTheme();
@@ -31,7 +32,18 @@ const Main = () => {
           />
         );
       case 'dashboard':
-        return <DashboardScreen />;
+        return <DashboardScreen onStartSession={() => setAppState('focus_setup')} />;
+      case 'focus_setup':
+        return (
+          <FocusSessionSetupScreen
+            onBack={() => setAppState('dashboard')}
+            onStart={(data) => {
+              console.log('Starting session:', data);
+              // We will handle the active session screen next
+              setAppState('dashboard');
+            }}
+          />
+        );
       default:
         return <OnboardingScreen onComplete={() => setAppState('login')} />;
     }

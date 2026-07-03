@@ -18,7 +18,11 @@ const STROKE_WIDTH = 20;
 const RADIUS = (GAUGE_SIZE - STROKE_WIDTH) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-export const DashboardScreen = () => {
+interface Props {
+  onStartSession: () => void;
+}
+
+export const DashboardScreen: React.FC<Props> = ({ onStartSession }) => {
   const { theme } = useTheme();
   const disciplineScore = 750; // Mock score for UI design
   const progress = disciplineScore / 1000;
@@ -116,7 +120,11 @@ export const DashboardScreen = () => {
         </View>
 
         {/* Primary Action Button */}
-        <TouchableOpacity style={styles.actionButton} activeOpacity={0.9}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          activeOpacity={0.9}
+          onPress={onStartSession}
+        >
           <Text style={styles.actionButtonText}>Start Focus Session</Text>
         </TouchableOpacity>
 
