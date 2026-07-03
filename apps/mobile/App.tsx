@@ -1,49 +1,34 @@
+import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
-import { GuardianBear } from './src/components/mascot/GuardianBear';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { OnboardingScreen } from './src/screens/OnboardingScreen';
+import { DashboardScreen } from './src/screens/DashboardScreen'; // We will create this next
+
+const Main = () => {
+  const { theme } = useTheme();
+  const [showOnboarding, setShowOnboarding] = useState(true);
+
+  if (showOnboarding) {
+    return (
+      <>
+        <StatusBar style={theme === 'light' ? 'dark' : 'light'} />
+        <OnboardingScreen onComplete={() => setShowOnboarding(false)} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <StatusBar style={theme === 'light' ? 'dark' : 'light'} />
+      <DashboardScreen />
+    </>
+  );
+};
 
 export default function App() {
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
-
-      <View style={styles.content}>
-        <GuardianBear state="focus" size={240} />
-
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>Discipline Beats Motivation</Text>
-          <Text style={styles.subtitle}>Welcome to LockUp</Text>
-        </View>
-      </View>
-    </SafeAreaView>
+    <ThemeProvider>
+      <Main />
+    </ThemeProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0F172A', // Obsidian Dark
-  },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  textContainer: {
-    marginTop: 48,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: '#FAF8FF',
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#C4B5FD',
-    marginTop: 8,
-    fontWeight: '600',
-  },
-});
