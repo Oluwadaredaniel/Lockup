@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Dimensions
+  Dimensions,
+  Animated,
+  Easing
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
@@ -34,18 +36,60 @@ export const DashboardScreen: React.FC<Props> = ({
   onViewProfile
 }) => {
   const { theme } = useTheme();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const gaugeAnim = useRef(new Animated.Value(0)).current;
+
   const disciplineScore = 750; // Mock score for UI design
   const progress = disciplineScore / 1000;
-  const strokeDashoffset = CIRCUMFERENCE * (1 - progress);
+
+  useEffect(() => {
+    // Sequence: Entry animation for the whole dashboard
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 800,
+        easing: Easing.out(Easing.back(1.5)),
+        useNativeDriver: true,
+      }),
+      // Gauge "draw" animation
+      Animated.timing(gaugeAnim, {
+        toValue: progress,
+        duration: 1500,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  // Using Animated's current value to calculate the stroke offset dynamically
+  const strokeDashoffset = gaugeAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [CIRCUMFERENCE, CIRCUMFERENCE * (1 - progress)],
+  });
 
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
   const textColor = isDark ? '#FAF8FF' : '#111827';
   const cardColor = isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.8)';
 
+  const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <Animated.ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        style={{
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }]
+        }}
+      >
 
         {/* Header Section */}
         <View style={styles.header}>
@@ -82,7 +126,7 @@ export const DashboardScreen: React.FC<Props> = ({
               fill="none"
             />
             {/* Progress Track */}
-            <Circle
+            <AnimatedCircle
               cx={GAUGE_SIZE / 2}
               cy={GAUGE_SIZE / 2}
               r={RADIUS}

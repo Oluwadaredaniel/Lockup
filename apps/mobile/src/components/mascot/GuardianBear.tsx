@@ -1,14 +1,52 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Easing } from 'react-native';
 import Svg, { G, Circle, Path, Rect, Ellipse, Defs, Filter, FeGaussianBlur, FeMerge, FeMergeNode } from 'react-native-svg';
 import { useTheme } from '../../context/ThemeContext';
 
 interface Props {
   state?: 'focus' | 'idle' | 'alert';
   size?: number;
+  animate?: boolean;
 }
 
-export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300 }) => {
-  const { theme, colors } = useTheme();
+const AnimatedG = Animated.createAnimatedComponent(G);
+
+export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300, animate = true }) => {
+  const { theme } = useTheme();
+  const breatheAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (animate) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(breatheAnim, {
+            toValue: 1,
+            duration: 3000,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(breatheAnim, {
+            toValue: 0,
+            duration: 3000,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      breatheAnim.setValue(0);
+    }
+  }, [animate]);
+
+  const scale = breatheAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.03],
+  });
+
+  const opacity = breatheAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.8, 1],
+  });
 
   // Theme-specific tokens
   const furColor = theme === 'light' ? '#211C17' : '#F4EEE2';
@@ -34,7 +72,12 @@ export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300 }) =
         </Filter>
       </Defs>
 
-      <G id="guardian-bear-mascot">
+      <AnimatedG
+        id="guardian-bear-mascot"
+        style={{
+          transform: [{ scale }],
+        }}
+      >
         <G id="bear-ears">
           <Circle cx="128" cy="80" r="40" fill={furColor} />
           <Circle cx="272" cy="80" r="40" fill={furColor} />
@@ -57,7 +100,11 @@ export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300 }) =
         <G id="bear-head">
           <Rect x="90" y="60" width="220" height="220" rx="64" fill={furColor} />
 
-          <G id="bear-visor">
+          <AnimatedG
+            id="bear-visor"
+            filter="url(#visor-glow)"
+            style={{ opacity: state === 'focus' ? opacity : 1 }}
+          >
             {state === 'focus' && (
               <G id="visor-focus">
                 <Rect x="112" y="150" width="66" height="42" rx="21" fill={visorColor} />
@@ -79,14 +126,14 @@ export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300 }) =
                 <Rect x="176" y="163" width="48" height="16" rx="8" fill={visorColor} />
               </G>
             )}
-          </G>
+          </AnimatedG>
 
           <G id="bear-snout">
             <Ellipse cx="200" cy="252" rx="54" ry="40" fill={contrastColor} />
             <Rect x="186" y="216" width="28" height="18" rx="9" fill={noseColor} />
           </G>
         </G>
-      </G>
+      </AnimatedG>
     </Svg>
   );
 };
