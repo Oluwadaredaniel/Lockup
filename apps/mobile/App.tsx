@@ -8,8 +8,9 @@ import { DashboardScreen } from './src/screens/DashboardScreen';
 import { FocusSessionSetupScreen } from './src/screens/FocusSessionSetupScreen';
 import { ActiveFocusScreen } from './src/screens/ActiveFocusScreen';
 import { SessionCompletionScreen } from './src/screens/SessionCompletionScreen';
+import { ShareProgressScreen } from './src/screens/ShareProgressScreen';
 
-type AppState = 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete';
+type AppState = 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share';
 
 const Main = () => {
   const { theme } = useTheme();
@@ -35,7 +36,12 @@ const Main = () => {
           />
         );
       case 'dashboard':
-        return <DashboardScreen onStartSession={() => setAppState('focus_setup')} />;
+        return (
+          <DashboardScreen
+            onStartSession={() => setAppState('focus_setup')}
+            onShare={() => setAppState('share')}
+          />
+        );
       case 'focus_setup':
         return (
           <FocusSessionSetupScreen
@@ -61,6 +67,8 @@ const Main = () => {
             onContinue={() => setAppState('dashboard')}
           />
         );
+      case 'share':
+        return <ShareProgressScreen onBack={() => setAppState('dashboard')} />;
       default:
         return <OnboardingScreen onComplete={() => setAppState('login')} />;
     }

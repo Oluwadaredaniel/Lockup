@@ -20,9 +20,10 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 interface Props {
   onStartSession: () => void;
+  onShare: () => void;
 }
 
-export const DashboardScreen: React.FC<Props> = ({ onStartSession }) => {
+export const DashboardScreen: React.FC<Props> = ({ onStartSession, onShare }) => {
   const { theme } = useTheme();
   const disciplineScore = 750; // Mock score for UI design
   const progress = disciplineScore / 1000;
@@ -43,9 +44,14 @@ export const DashboardScreen: React.FC<Props> = ({ onStartSession }) => {
             <Text style={styles.greeting}>Good Morning,</Text>
             <Text style={[styles.name, { color: textColor }]}>Guardian</Text>
           </View>
-          <TouchableOpacity style={[styles.levelBadge, { backgroundColor: '#7C3AED' }]}>
-            <Text style={styles.levelText}>Level 12</Text>
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity onPress={onShare} style={styles.shareIconButton}>
+              <Text style={styles.shareIcon}>🔗</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.levelBadge, { backgroundColor: '#7C3AED' }]}>
+              <Text style={styles.levelText}>Level 12</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Central Discipline Gauge */}
@@ -155,6 +161,19 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: '900',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  shareIconButton: {
+    padding: 8,
+    backgroundColor: 'rgba(124, 58, 237, 0.1)',
+    borderRadius: 12,
+  },
+  shareIcon: {
+    fontSize: 18,
   },
   levelBadge: {
     paddingHorizontal: 12,
