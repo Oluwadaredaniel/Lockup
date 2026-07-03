@@ -36,13 +36,15 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 
 ---
 
-## **Phase 3: Firebase & Identity (10-12 Commits)**
+## **Phase 3: Firebase & Identity (10-12 Commits)** [IN PROGRESS]
 *Goal: Secure auth and data persistence.*
 
-- Setup Firebase Auth & Firestore schema.
-- Implement `useAuth` hook.
-- **Commit:** User profile initialization logic.
-- **QA:** Unit tests for Auth State transitions.
+- [ ] Setup Firebase Auth & Firestore schema.
+- [ ] Implement `useAuth` hook.
+- [x] **Commit:** Premium Login Screen UI implementation.
+- [x] **Commit:** Authentication flow navigation state (Onboarding -> Auth -> Dashboard).
+- [ ] **Commit:** User profile initialization logic.
+- [ ] **QA:** Unit tests for Auth State transitions.
 
 ---
 
