@@ -43,6 +43,8 @@ export const DashboardScreen: React.FC<Props> = ({
   const disciplineScore = 750; // Mock score for UI design
   const progress = disciplineScore / 1000;
 
+  const barAnims = useRef([40, 70, 45, 90, 65, 30, 80].map(() => new Animated.Value(0))).current;
+
   useEffect(() => {
     // Sequence: Entry animation for the whole dashboard
     Animated.parallel([
@@ -64,6 +66,15 @@ export const DashboardScreen: React.FC<Props> = ({
         easing: Easing.out(Easing.quad),
         useNativeDriver: true,
       }),
+      // Staggered bar growth animation
+      Animated.stagger(100, barAnims.map((anim, i) =>
+        Animated.timing(anim, {
+          toValue: [40, 70, 45, 90, 65, 30, 80][i],
+          duration: 1000,
+          easing: Easing.out(Easing.exp),
+          useNativeDriver: false, // height cannot be animated with native driver
+        })
+      ))
     ]).start();
   }, []);
 
@@ -175,9 +186,17 @@ export const DashboardScreen: React.FC<Props> = ({
         <View style={[styles.progressSection, { backgroundColor: cardColor }]}>
           <Text style={[styles.sectionTitle, { color: textColor }]}>Weekly Focus</Text>
           <View style={styles.barContainer}>
-            {[40, 70, 45, 90, 65, 30, 80].map((val, i) => (
+            {barAnims.map((anim, i) => (
               <View key={i} style={styles.barWrapper}>
-                <View style={[styles.bar, { height: val, backgroundColor: i === 3 ? '#7C3AED' : '#C4B5FD' }]} />
+                <Animated.View
+                  style={[
+                    styles.bar,
+                    {
+                      height: anim,
+                      backgroundColor: i === 3 ? '#7C3AED' : '#C4B5FD'
+                    }
+                  ]}
+                />
                 <Text style={styles.barDay}>{['M','T','W','T','F','S','S'][i]}</Text>
               </View>
             ))}

@@ -14,6 +14,20 @@ const AnimatedG = Animated.createAnimatedComponent(G);
 export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300, animate = true }) => {
   const { theme } = useTheme();
   const breatheAnim = useRef(new Animated.Value(0)).current;
+  const stateFadeAnim = useRef(new Animated.Value(1)).current;
+  const prevState = useRef(state);
+
+  useEffect(() => {
+    if (prevState.current !== state) {
+      stateFadeAnim.setValue(0);
+      Animated.timing(stateFadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }).start();
+      prevState.current = state;
+    }
+  }, [state]);
 
   useEffect(() => {
     if (animate) {
@@ -103,7 +117,11 @@ export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300, ani
           <AnimatedG
             id="bear-visor"
             filter="url(#visor-glow)"
-            style={{ opacity: state === 'focus' ? opacity : 1 }}
+            style={{
+              opacity: state === 'focus'
+                ? Animated.multiply(opacity, stateFadeAnim)
+                : stateFadeAnim
+            }}
           >
             {state === 'focus' && (
               <G id="visor-focus">
