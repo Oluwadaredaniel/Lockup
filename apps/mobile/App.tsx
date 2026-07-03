@@ -14,15 +14,27 @@ import { XPHistoryScreen } from './src/screens/XPHistoryScreen';
 import { FocusActiveOverlayScreen } from './src/screens/FocusActiveOverlayScreen';
 import { ProfileScreen } from './src/screens/ProfileScreen';
 import { SplashScreen } from './src/screens/SplashScreen';
+import { ErrorState } from './src/components/feedback/ErrorState';
 
-type AppState = 'splash' | 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share' | 'achievements' | 'xp_history' | 'focus_overlay' | 'profile';
+type AppState = 'splash' | 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share' | 'achievements' | 'xp_history' | 'focus_overlay' | 'profile' | 'error';
 
 const Main = () => {
   const { theme } = useTheme();
   const [appState, setAppState] = useState<AppState>('splash');
   const [currentSession, setCurrentSession] = useState<any>(null);
+  const [lastError, setLastError] = useState<string | undefined>(undefined);
 
   const renderScreen = () => {
+    if (appState === 'error') {
+      return (
+        <ErrorState
+          error={lastError}
+          onRetry={() => setAppState('dashboard')}
+          onBack={() => setAppState('login')}
+        />
+      );
+    }
+
     switch (appState) {
       case 'splash':
         return <SplashScreen onFinish={() => setAppState('onboarding')} />;

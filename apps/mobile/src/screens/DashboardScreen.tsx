@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
+import { EmptyState } from '../components/feedback/EmptyState';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
@@ -40,7 +41,8 @@ export const DashboardScreen: React.FC<Props> = ({
   const slideAnim = useRef(new Animated.Value(30)).current;
   const gaugeAnim = useRef(new Animated.Value(0)).current;
 
-  const disciplineScore = 750; // Mock score for UI design
+  const hasData = true; // Toggle this for testing empty state
+  const disciplineScore = hasData ? 750 : 0;
   const progress = disciplineScore / 1000;
 
   const barAnims = useRef([40, 70, 45, 90, 65, 30, 80].map(() => new Animated.Value(0))).current;
@@ -183,25 +185,32 @@ export const DashboardScreen: React.FC<Props> = ({
         </View>
 
         {/* Weekly Progress Placeholder */}
-        <View style={[styles.progressSection, { backgroundColor: cardColor }]}>
-          <Text style={[styles.sectionTitle, { color: textColor }]}>Weekly Focus</Text>
-          <View style={styles.barContainer}>
-            {barAnims.map((anim, i) => (
-              <View key={i} style={styles.barWrapper}>
-                <Animated.View
-                  style={[
-                    styles.bar,
-                    {
-                      height: anim,
-                      backgroundColor: i === 3 ? '#7C3AED' : '#C4B5FD'
-                    }
-                  ]}
-                />
-                <Text style={styles.barDay}>{['M','T','W','T','F','S','S'][i]}</Text>
-              </View>
-            ))}
+        {!hasData ? (
+          <EmptyState
+            title="No focus history yet"
+            description="Your weekly discipline chart will appear here once you complete your first session."
+          />
+        ) : (
+          <View style={[styles.progressSection, { backgroundColor: cardColor }]}>
+            <Text style={[styles.sectionTitle, { color: textColor }]}>Weekly Focus</Text>
+            <View style={styles.barContainer}>
+              {barAnims.map((anim, i) => (
+                <View key={i} style={styles.barWrapper}>
+                  <Animated.View
+                    style={[
+                      styles.bar,
+                      {
+                        height: anim,
+                        backgroundColor: i === 3 ? '#7C3AED' : '#C4B5FD'
+                      }
+                    ]}
+                  />
+                  <Text style={styles.barDay}>{['M','T','W','T','F','S','S'][i]}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Primary Action Button */}
         <TouchableOpacity
