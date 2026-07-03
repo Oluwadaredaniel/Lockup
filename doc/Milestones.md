@@ -15,12 +15,14 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 - [x] **Commit:** High-fidelity Mascot SVG Asset generated and modularized.
 - [x] **Commit:** Initial `jest` setup for unit testing core logic.
 
-### **1.2 Design System Implementation (8-10 Commits)**
-- Define `theme.ts` (Colors, Spacing, Typography).
-- Build `Button` component (Primary, Secondary, Ghost).
-- Build `Typography` components (Heading, Subheading, Body).
-- Build `Card` and `Badge` primitives.
-- **QA:** Snapshot tests for all base components.
+### **1.2 Design System Implementation (8-10 Commits)** [IN PROGRESS]
+- [x] Define `theme.ts` (Colors, Spacing, Typography).
+- [x] Build `Button` component (Primary, Secondary, Ghost).
+- [x] Build `Typography` components (Heading, Subheading, Body).
+- [x] Build `Card` and `Badge` primitives.
+- [x] **QA:** Setup Jest and React Native Testing Library.
+- [x] **QA:** Implement Snapshot tests for the Mascot and UI Primitives.
+- [ ] **QA:** Automated integration tests for the primary User Loop.
 
 ---
 
