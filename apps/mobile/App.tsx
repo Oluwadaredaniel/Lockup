@@ -6,12 +6,14 @@ import { LoginScreen } from './src/screens/LoginScreen';
 import { SignupScreen } from './src/screens/SignupScreen';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { FocusSessionSetupScreen } from './src/screens/FocusSessionSetupScreen';
+import { ActiveFocusScreen } from './src/screens/ActiveFocusScreen';
 
-type AppState = 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup';
+type AppState = 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus';
 
 const Main = () => {
   const { theme } = useTheme();
   const [appState, setAppState] = useState<AppState>('onboarding');
+  const [currentSession, setCurrentSession] = useState<any>(null);
 
   const renderScreen = () => {
     switch (appState) {
@@ -38,10 +40,20 @@ const Main = () => {
           <FocusSessionSetupScreen
             onBack={() => setAppState('dashboard')}
             onStart={(data) => {
-              console.log('Starting session:', data);
-              // We will handle the active session screen next
-              setAppState('dashboard');
+              setCurrentSession(data);
+              setAppState('active_focus');
             }}
+          />
+        );
+      case 'active_focus':
+        return (
+          <ActiveFocusScreen
+            sessionData={currentSession}
+            onComplete={() => {
+              setAppState('dashboard');
+              // We will handle the completion reward screen next
+            }}
+            onAbandon={() => setAppState('dashboard')}
           />
         );
       default:
