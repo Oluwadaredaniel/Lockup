@@ -13,6 +13,8 @@ import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
 import { calculateSessionXP, LockLevel } from '../../../../packages/core';
 
+import * as Haptics from 'expo-haptics';
+
 const { width } = Dimensions.get('window');
 
 interface Props {
@@ -30,6 +32,7 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     Animated.parallel([
       Animated.spring(scaleAnim, {
         toValue: 1,

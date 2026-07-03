@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,12 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  Animated
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
+import * as Haptics from 'expo-haptics';
 
 interface Props {
   onLogin: () => void;
@@ -22,6 +24,21 @@ export const LoginScreen: React.FC<Props> = ({ onLogin, onSignUp }) => {
   const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  const handleLogin = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    onLogin();
+  };
 
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
@@ -43,7 +60,17 @@ export const LoginScreen: React.FC<Props> = ({ onLogin, onSignUp }) => {
             <Text style={styles.subtitle}>Sign in to continue your journey</Text>
           </View>
 
-          <View style={[styles.form, { backgroundColor: cardColor, borderColor }]}>
+          <Animated.View
+            style={[
+              styles.form,
+              {
+                backgroundColor: cardColor,
+                borderColor,
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }]
+              }
+            ]}
+          >
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: textColor }]}>Email Address</Text>
               <TextInput
@@ -71,7 +98,7 @@ export const LoginScreen: React.FC<Props> = ({ onLogin, onSignUp }) => {
 
             <TouchableOpacity
               style={styles.loginButton}
-              onPress={onLogin}
+              onPress={handleLogin}
               activeOpacity={0.8}
             >
               <Text style={styles.loginButtonText}>Sign In</Text>

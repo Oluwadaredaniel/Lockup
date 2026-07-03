@@ -15,6 +15,8 @@ import { GuardianBear } from '../components/mascot/GuardianBear';
 import { LockLevel, formatDuration } from '../../../../packages/core';
 import Svg, { Circle } from 'react-native-svg';
 
+import * as Haptics from 'expo-haptics';
+
 const { width } = Dimensions.get('window');
 const TIMER_SIZE = width * 0.8;
 const STROKE_WIDTH = 12;
@@ -60,6 +62,7 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
   }, [secondsRemaining]);
 
   const triggerShake = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     Animated.sequence([
       Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
       Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
