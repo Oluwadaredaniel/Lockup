@@ -11,8 +11,9 @@ import { SessionCompletionScreen } from './src/screens/SessionCompletionScreen';
 import { ShareProgressScreen } from './src/screens/ShareProgressScreen';
 import { AchievementsGalleryScreen } from './src/screens/AchievementsGalleryScreen';
 import { XPHistoryScreen } from './src/screens/XPHistoryScreen';
+import { FocusActiveOverlayScreen } from './src/screens/FocusActiveOverlayScreen';
 
-type AppState = 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share' | 'achievements' | 'xp_history';
+type AppState = 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share' | 'achievements' | 'xp_history' | 'focus_overlay';
 
 const Main = () => {
   const { theme } = useTheme();
@@ -62,6 +63,7 @@ const Main = () => {
             sessionData={currentSession}
             onComplete={() => setAppState('session_complete')}
             onAbandon={() => setAppState('dashboard')}
+            onSimulateDistraction={() => setAppState('focus_overlay')}
           />
         );
       case 'session_complete':
@@ -77,6 +79,8 @@ const Main = () => {
         return <AchievementsGalleryScreen onBack={() => setAppState('dashboard')} />;
       case 'xp_history':
         return <XPHistoryScreen onBack={() => setAppState('dashboard')} />;
+      case 'focus_overlay':
+        return <FocusActiveOverlayScreen onReturnToApp={() => setAppState('active_focus')} appName="Instagram" />;
       default:
         return <OnboardingScreen onComplete={() => setAppState('login')} />;
     }

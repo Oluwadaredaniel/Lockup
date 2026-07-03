@@ -27,9 +27,10 @@ interface Props {
   };
   onComplete: () => void;
   onAbandon: () => void;
+  onSimulateDistraction?: () => void;
 }
 
-export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, onAbandon }) => {
+export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, onAbandon, onSimulateDistraction }) => {
   const { theme } = useTheme();
   const [secondsRemaining, setSecondsRemaining] = useState(sessionData.duration * 60);
   const totalSeconds = sessionData.duration * 60;
@@ -130,6 +131,12 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
             {sessionData.selectedLockLevel === LockLevel.Strict ? '🔒 Locked' : 'Give Up'}
           </Text>
         </TouchableOpacity>
+
+        {onSimulateDistraction && (
+          <TouchableOpacity onPress={onSimulateDistraction} style={styles.debugButton}>
+            <Text style={styles.debugText}>[DEBUG] Simulate Distraction</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -201,4 +208,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+  debugButton: {
+    marginTop: 8,
+  },
+  debugText: {
+    fontSize: 10,
+    color: '#94A3B8',
+    fontStyle: 'italic',
+  }
 });
