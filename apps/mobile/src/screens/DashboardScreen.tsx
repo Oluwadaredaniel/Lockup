@@ -1,28 +1,126 @@
 import React from 'react';
-import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions
+} from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
+
+const { width } = Dimensions.get('window');
+const GAUGE_SIZE = width * 0.7;
+const STROKE_WIDTH = 20;
+const RADIUS = (GAUGE_SIZE - STROKE_WIDTH) / 2;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export const DashboardScreen = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
+  const disciplineScore = 750; // Mock score for UI design
+  const progress = disciplineScore / 1000;
+  const strokeDashoffset = CIRCUMFERENCE * (1 - progress);
 
-  const bgColor = theme === 'light' ? '#FAF8FF' : '#0F172A';
-  const textColor = theme === 'light' ? '#111827' : '#FAF8FF';
+  const isDark = theme === 'dark';
+  const bgColor = isDark ? '#020617' : '#FAF8FF';
+  const textColor = isDark ? '#FAF8FF' : '#111827';
+  const cardColor = isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.8)';
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
-      <View style={styles.content}>
-        <GuardianBear state="idle" size={200} />
-        <Text style={[styles.title, { color: textColor }]}>Dashboard</Text>
-        <Text style={[styles.subtitle, { color: textColor }]}>Discipline is active.</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-        <TouchableOpacity
-          onPress={toggleTheme}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>Toggle {theme === 'light' ? 'Dark' : 'Light'} Mode</Text>
+        {/* Header Section */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.greeting}>Good Morning,</Text>
+            <Text style={[styles.name, { color: textColor }]}>Guardian</Text>
+          </View>
+          <TouchableOpacity style={[styles.levelBadge, { backgroundColor: '#7C3AED' }]}>
+            <Text style={styles.levelText}>Level 12</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Central Discipline Gauge */}
+        <View style={styles.gaugeContainer}>
+          <Svg width={GAUGE_SIZE} height={GAUGE_SIZE} style={styles.gauge}>
+            <Defs>
+              <LinearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <Stop offset="0%" stopColor="#8B5CF6" />
+                <Stop offset="100%" stopColor="#7C3AED" />
+              </LinearGradient>
+            </Defs>
+            {/* Background Track */}
+            <Circle
+              cx={GAUGE_SIZE / 2}
+              cy={GAUGE_SIZE / 2}
+              r={RADIUS}
+              stroke={isDark ? '#1E293B' : '#E2E8F0'}
+              strokeWidth={STROKE_WIDTH}
+              fill="none"
+            />
+            {/* Progress Track */}
+            <Circle
+              cx={GAUGE_SIZE / 2}
+              cy={GAUGE_SIZE / 2}
+              r={RADIUS}
+              stroke="url(#gaugeGradient)"
+              strokeWidth={STROKE_WIDTH}
+              fill="none"
+              strokeDasharray={CIRCUMFERENCE}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              transform={`rotate(-90 ${GAUGE_SIZE / 2} ${GAUGE_SIZE / 2})`}
+            />
+          </Svg>
+
+          <View style={styles.scoreContent}>
+            <GuardianBear state="idle" size={120} />
+            <Text style={[styles.scoreValue, { color: textColor }]}>{disciplineScore}</Text>
+            <Text style={styles.scoreLabel}>Discipline Score</Text>
+          </View>
+        </View>
+
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          <View style={[styles.statCard, { backgroundColor: cardColor }]}>
+            <Text style={styles.statEmoji}>🔥</Text>
+            <View>
+              <Text style={[styles.statValue, { color: textColor }]}>12</Text>
+              <Text style={styles.statLabel}>Days Streak</Text>
+            </View>
+          </View>
+          <View style={[styles.statCard, { backgroundColor: cardColor }]}>
+            <Text style={styles.statEmoji}>⭐</Text>
+            <View>
+              <Text style={[styles.statValue, { color: textColor }]}>2.4k</Text>
+              <Text style={styles.statLabel}>Total XP</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Weekly Progress Placeholder */}
+        <View style={[styles.progressSection, { backgroundColor: cardColor }]}>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>Weekly Focus</Text>
+          <View style={styles.barContainer}>
+            {[40, 70, 45, 90, 65, 30, 80].map((val, i) => (
+              <View key={i} style={styles.barWrapper}>
+                <View style={[styles.bar, { height: val, backgroundColor: i === 3 ? '#7C3AED' : '#C4B5FD' }]} />
+                <Text style={styles.barDay}>{['M','T','W','T','F','S','S'][i]}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Primary Action Button */}
+        <TouchableOpacity style={styles.actionButton} activeOpacity={0.9}>
+          <Text style={styles.actionButtonText}>Start Focus Session</Text>
         </TouchableOpacity>
-      </View>
+
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -31,30 +129,132 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  scrollContent: {
     padding: 24,
+    paddingBottom: 40,
   },
-  title: {
-    fontSize: 32,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  greeting: {
+    fontSize: 16,
+    color: '#64748B',
+    fontWeight: '600',
+  },
+  name: {
+    fontSize: 24,
     fontWeight: '900',
-    marginTop: 24,
   },
-  subtitle: {
-    fontSize: 18,
-    opacity: 0.7,
-    marginTop: 8,
+  levelBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
-  button: {
-    marginTop: 48,
-    padding: 16,
-    backgroundColor: '#7C3AED',
-    borderRadius: 12,
-  },
-  buttonText: {
+  levelText: {
     color: 'white',
     fontWeight: '700',
-  }
+    fontSize: 12,
+  },
+  gaugeContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 40,
+  },
+  gauge: {
+    position: 'absolute',
+  },
+  scoreContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scoreValue: {
+    fontSize: 48,
+    fontWeight: '900',
+    marginTop: -10,
+  },
+  scoreLabel: {
+    fontSize: 14,
+    color: '#94A3B8',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 24,
+  },
+  statCard: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  statEmoji: {
+    fontSize: 24,
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#64748B',
+    fontWeight: '600',
+  },
+  progressSection: {
+    padding: 24,
+    borderRadius: 24,
+    marginBottom: 32,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 24,
+  },
+  barContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    height: 100,
+  },
+  barWrapper: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  bar: {
+    width: 12,
+    borderRadius: 6,
+  },
+  barDay: {
+    fontSize: 10,
+    color: '#94A3B8',
+    fontWeight: '700',
+  },
+  actionButton: {
+    backgroundColor: '#7C3AED',
+    height: 64,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  actionButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '800',
+  },
 });
