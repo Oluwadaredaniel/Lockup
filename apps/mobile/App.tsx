@@ -12,8 +12,9 @@ import { ShareProgressScreen } from './src/screens/ShareProgressScreen';
 import { AchievementsGalleryScreen } from './src/screens/AchievementsGalleryScreen';
 import { XPHistoryScreen } from './src/screens/XPHistoryScreen';
 import { FocusActiveOverlayScreen } from './src/screens/FocusActiveOverlayScreen';
+import { ProfileScreen } from './src/screens/ProfileScreen';
 
-type AppState = 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share' | 'achievements' | 'xp_history' | 'focus_overlay';
+type AppState = 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share' | 'achievements' | 'xp_history' | 'focus_overlay' | 'profile';
 
 const Main = () => {
   const { theme } = useTheme();
@@ -45,6 +46,7 @@ const Main = () => {
             onShare={() => setAppState('share')}
             onViewAchievements={() => setAppState('achievements')}
             onViewXP={() => setAppState('xp_history')}
+            onViewProfile={() => setAppState('profile')}
           />
         );
       case 'focus_setup':
@@ -81,6 +83,13 @@ const Main = () => {
         return <XPHistoryScreen onBack={() => setAppState('dashboard')} />;
       case 'focus_overlay':
         return <FocusActiveOverlayScreen onReturnToApp={() => setAppState('active_focus')} appName="Instagram" />;
+      case 'profile':
+        return (
+          <ProfileScreen
+            onBack={() => setAppState('dashboard')}
+            onLogout={() => setAppState('login')}
+          />
+        );
       default:
         return <OnboardingScreen onComplete={() => setAppState('login')} />;
     }

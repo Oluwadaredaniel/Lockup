@@ -45,6 +45,7 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 - [x] **Commit:** Premium Login Screen UI implementation.
 - [x] **Commit:** Premium Signup Screen UI implementation.
 - [x] **Commit:** Authentication flow navigation state (Onboarding -> Login -> Signup -> Dashboard).
+- [x] **Commit:** Premium User Profile and Settings UI implementation.
 - [ ] **Commit:** User profile initialization logic.
 - [ ] **QA:** Unit tests for Auth State transitions.
 

@@ -23,9 +23,16 @@ interface Props {
   onShare: () => void;
   onViewAchievements: () => void;
   onViewXP: () => void;
+  onViewProfile: () => void;
 }
 
-export const DashboardScreen: React.FC<Props> = ({ onStartSession, onShare, onViewAchievements, onViewXP }) => {
+export const DashboardScreen: React.FC<Props> = ({
+  onStartSession,
+  onShare,
+  onViewAchievements,
+  onViewXP,
+  onViewProfile
+}) => {
   const { theme } = useTheme();
   const disciplineScore = 750; // Mock score for UI design
   const progress = disciplineScore / 1000;
@@ -42,10 +49,10 @@ export const DashboardScreen: React.FC<Props> = ({ onStartSession, onShare, onVi
 
         {/* Header Section */}
         <View style={styles.header}>
-          <View>
+          <TouchableOpacity onPress={onViewProfile}>
             <Text style={styles.greeting}>Good Morning,</Text>
             <Text style={[styles.name, { color: textColor }]}>Guardian</Text>
-          </View>
+          </TouchableOpacity>
           <View style={styles.headerActions}>
             <TouchableOpacity onPress={onShare} style={styles.shareIconButton}>
               <Text style={styles.shareIcon}>🔗</Text>
