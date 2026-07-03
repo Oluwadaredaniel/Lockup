@@ -67,13 +67,14 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 
 ---
 
-## **Phase 5: Gamification & Progress**
+## **Phase 5: Gamification & Progress** [IN PROGRESS]
 *Goal: The reward loop (XP, Streaks, Score).*
 
-### **5.1 The Logic Engine (8-10 Commits)**
-- **Commit:** Shared logic for XP and Discipline Score.
-- **Commit:** Streak counter with daily reset logic.
-- **QA:** Unit tests covering all XP/Penalty scenarios.
+- [ ] The Logic Engine (8-10 Commits)
+- [x] **Commit:** High-fidelity Achievements Gallery UI implementation.
+- [x] **Commit:** XP History and Transaction Log UI implementation.
+- [x] **Commit:** Interactive Dashboard statistics and growth visualization.
+- [ ] Shared logic for XP and Discipline Score.
 
 ---
 

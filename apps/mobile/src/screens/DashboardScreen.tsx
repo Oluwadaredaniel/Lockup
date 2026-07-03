@@ -21,9 +21,11 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 interface Props {
   onStartSession: () => void;
   onShare: () => void;
+  onViewAchievements: () => void;
+  onViewXP: () => void;
 }
 
-export const DashboardScreen: React.FC<Props> = ({ onStartSession, onShare }) => {
+export const DashboardScreen: React.FC<Props> = ({ onStartSession, onShare, onViewAchievements, onViewXP }) => {
   const { theme } = useTheme();
   const disciplineScore = 750; // Mock score for UI design
   const progress = disciplineScore / 1000;
@@ -96,20 +98,26 @@ export const DashboardScreen: React.FC<Props> = ({ onStartSession, onShare }) =>
 
         {/* Stats Row */}
         <View style={styles.statsRow}>
-          <View style={[styles.statCard, { backgroundColor: cardColor }]}>
+          <TouchableOpacity
+            style={[styles.statCard, { backgroundColor: cardColor }]}
+            onPress={onViewAchievements}
+          >
             <Text style={styles.statEmoji}>🔥</Text>
             <View>
               <Text style={[styles.statValue, { color: textColor }]}>12</Text>
               <Text style={styles.statLabel}>Days Streak</Text>
             </View>
-          </View>
-          <View style={[styles.statCard, { backgroundColor: cardColor }]}>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.statCard, { backgroundColor: cardColor }]}
+            onPress={onViewXP}
+          >
             <Text style={styles.statEmoji}>⭐</Text>
             <View>
               <Text style={[styles.statValue, { color: textColor }]}>2.4k</Text>
               <Text style={styles.statLabel}>Total XP</Text>
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Weekly Progress Placeholder */}

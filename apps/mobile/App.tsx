@@ -9,8 +9,10 @@ import { FocusSessionSetupScreen } from './src/screens/FocusSessionSetupScreen';
 import { ActiveFocusScreen } from './src/screens/ActiveFocusScreen';
 import { SessionCompletionScreen } from './src/screens/SessionCompletionScreen';
 import { ShareProgressScreen } from './src/screens/ShareProgressScreen';
+import { AchievementsGalleryScreen } from './src/screens/AchievementsGalleryScreen';
+import { XPHistoryScreen } from './src/screens/XPHistoryScreen';
 
-type AppState = 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share';
+type AppState = 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share' | 'achievements' | 'xp_history';
 
 const Main = () => {
   const { theme } = useTheme();
@@ -40,6 +42,8 @@ const Main = () => {
           <DashboardScreen
             onStartSession={() => setAppState('focus_setup')}
             onShare={() => setAppState('share')}
+            onViewAchievements={() => setAppState('achievements')}
+            onViewXP={() => setAppState('xp_history')}
           />
         );
       case 'focus_setup':
@@ -69,6 +73,10 @@ const Main = () => {
         );
       case 'share':
         return <ShareProgressScreen onBack={() => setAppState('dashboard')} />;
+      case 'achievements':
+        return <AchievementsGalleryScreen onBack={() => setAppState('dashboard')} />;
+      case 'xp_history':
+        return <XPHistoryScreen onBack={() => setAppState('dashboard')} />;
       default:
         return <OnboardingScreen onComplete={() => setAppState('login')} />;
     }
