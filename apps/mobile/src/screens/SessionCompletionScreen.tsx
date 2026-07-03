@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
-  Dimensions
+  Dimensions,
+  Animated,
+  Easing
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
@@ -24,6 +26,24 @@ interface Props {
 
 export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContinue }) => {
   const { theme } = useTheme();
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const xpEarned = calculateSessionXP(
     sessionData.duration,
@@ -47,7 +67,16 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
         <Text style={[styles.title, { color: textColor }]}>Session Complete</Text>
         <Text style={styles.subtitle}>You protected your focus for {sessionData.duration} minutes.</Text>
 
-        <View style={[styles.rewardCard, { backgroundColor: cardColor }]}>
+        <Animated.View
+          style={[
+            styles.rewardCard,
+            {
+              backgroundColor: cardColor,
+              opacity: opacityAnim,
+              transform: [{ scale: scaleAnim }]
+            }
+          ]}
+        >
           <View style={styles.rewardItem}>
             <Text style={styles.rewardLabel}>XP EARNED</Text>
             <Text style={[styles.rewardValue, { color: '#7C3AED' }]}>+{xpEarned}</Text>

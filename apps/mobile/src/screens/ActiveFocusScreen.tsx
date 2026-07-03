@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  Dimensions
+  Dimensions,
+  Animated,
+  Easing
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
@@ -35,6 +37,8 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
   const [secondsRemaining, setSecondsRemaining] = useState(sessionData.duration * 60);
   const totalSeconds = sessionData.duration * 60;
 
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+
   const progress = secondsRemaining / totalSeconds;
   const strokeDashoffset = CIRCUMFERENCE * (1 - progress);
 
@@ -55,6 +59,15 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
     return () => clearInterval(interval);
   }, [secondsRemaining]);
 
+  const triggerShake = () => {
+    Animated.sequence([
+      Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true })
+    ]).start();
+  };
+
   const handleExit = () => {
     if (sessionData.selectedLockLevel === LockLevel.Flexible) {
       onAbandon();
@@ -68,6 +81,7 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
         ]
       );
     } else {
+      triggerShake();
       Alert.alert(
         "Session Locked",
         "This is a Level 3 Strict Session. You cannot exit until the timer completes.",
@@ -119,18 +133,20 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
 
       <View style={styles.footer}>
         <Text style={styles.instruction}>Stay focused on your task</Text>
-        <TouchableOpacity
-          onPress={handleExit}
-          style={[
-            styles.exitButton,
-            { borderColor: isDark ? '#334155' : '#E2E8F0' },
-            sessionData.selectedLockLevel === LockLevel.Strict && { opacity: 0.5 }
-          ]}
-        >
-          <Text style={[styles.exitButtonText, { color: isDark ? '#94A3B8' : '#64748B' }]}>
-            {sessionData.selectedLockLevel === LockLevel.Strict ? '🔒 Locked' : 'Give Up'}
-          </Text>
-        </TouchableOpacity>
+        <Animated.View style={{ transform: [{ translateX: shakeAnim }] }}>
+          <TouchableOpacity
+            onPress={handleExit}
+            style={[
+              styles.exitButton,
+              { borderColor: isDark ? '#334155' : '#E2E8F0' },
+              sessionData.selectedLockLevel === LockLevel.Strict && { opacity: 0.5 }
+            ]}
+          >
+            <Text style={[styles.exitButtonText, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+              {sessionData.selectedLockLevel === LockLevel.Strict ? '🔒 Locked' : 'Give Up'}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
 
         {onSimulateDistraction && (
           <TouchableOpacity onPress={onSimulateDistraction} style={styles.debugButton}>
