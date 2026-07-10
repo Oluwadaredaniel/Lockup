@@ -10,6 +10,15 @@ export * from './sessions';
 export * from './streaks';
 export * from './users';
 
+export interface Achievement {
+  id: string;
+  title: string;
+  emoji: string;
+  unlocked: boolean;
+  date?: string;
+  requirement: string;
+}
+
 export interface UserProfile {
   uid: string;
   name: string;
@@ -23,6 +32,8 @@ export interface UserProfile {
   weeklyActivity: number[];
   dailyXPGoal: number;
   notificationsEnabled: boolean;
+  achievements: Achievement[];
+  gems: number; // Currency for shop
 }
 
 /**

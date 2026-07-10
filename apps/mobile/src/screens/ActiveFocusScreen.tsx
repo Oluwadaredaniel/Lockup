@@ -8,13 +8,16 @@ import {
   Alert,
   Dimensions,
   Animated,
-  Easing
+  Easing,
+  AppState,
+  AppStateStatus
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
 import { useFocusSession } from '../hooks/useFocusSession';
 import { Typography } from '../components/ui/Typography';
 import { LockLevel, formatDuration, SessionStatus } from '../../../../packages/core';
+import { NotificationService } from '../services/NotificationService';
 import Svg, { Circle } from 'react-native-svg';
 
 import * as Haptics from 'expo-haptics';
@@ -58,6 +61,35 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
       onAbandon();
     }
   }, [status]);
+
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (
+        nextAppState === 'background' &&
+        sessionData.selectedLockLevel !== LockLevel.Flexible
+      ) {
+        // User left the app during a committed session
+        NotificationService.sendInstantNotification(
+          "Get Back to Focus! 🐾",
+          "The Guardian Bear noticed you left. Your focus session is still active.",
+          { screen: 'active_focus' }
+        );
+      } else if (
+        nextAppState === 'active' &&
+        sessionData.selectedLockLevel === LockLevel.Strict &&
+        onSimulateDistraction
+      ) {
+        // User returned - in a strict session we simulate the overlay
+        // In a real app this would be triggered by an actual distraction
+        // onSimulateDistraction();
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   const triggerShake = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);

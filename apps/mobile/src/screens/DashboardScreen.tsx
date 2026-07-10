@@ -31,6 +31,7 @@ interface Props {
   onViewAchievements: () => void;
   onViewXP: () => void;
   onViewProfile: () => void;
+  onViewShop: () => void;
 }
 
 export const DashboardScreen: React.FC<Props> = ({
@@ -38,7 +39,8 @@ export const DashboardScreen: React.FC<Props> = ({
   onShare,
   onViewAchievements,
   onViewXP,
-  onViewProfile
+  onViewProfile,
+  onViewShop
 }) => {
   const { theme } = useTheme();
   const { user } = useUser();
@@ -117,6 +119,9 @@ export const DashboardScreen: React.FC<Props> = ({
             <Typography variant="h2" weight="black">{user?.name || 'Guardian'}</Typography>
           </TouchableOpacity>
           <View style={styles.headerActions}>
+            <TouchableOpacity onPress={onViewShop} style={styles.gemBadge}>
+              <Typography variant="label" color="#10B981" weight="bold">💎 {user?.gems || 0}</Typography>
+            </TouchableOpacity>
             <TouchableOpacity onPress={onShare} style={styles.shareIconButton}>
               <Text style={styles.shareIcon}>🔗</Text>
             </TouchableOpacity>
@@ -220,34 +225,67 @@ export const DashboardScreen: React.FC<Props> = ({
           </Card>
         </View>
 
-        {/* Weekly Progress Placeholder */}
+        {/* Weekly Progress Section */}
         {!hasData ? (
           <EmptyState
             title="No focus history yet"
             description="Your weekly discipline chart will appear here once you complete your first session."
           />
         ) : (
-          <Card style={styles.progressSection} padding={24}>
-            <Typography variant="h3" weight="bold" style={{ marginBottom: 24 }}>Weekly Focus</Typography>
-            <View style={styles.barContainer}>
-              {barAnims.map((anim, i) => (
-                <View key={i} style={styles.barWrapper}>
-                  <Animated.View
-                    style={[
-                      styles.bar,
-                      {
-                        height: anim,
-                        backgroundColor: i === 3 ? '#7C3AED' : '#C4B5FD'
-                      }
-                    ]}
-                  />
-                  <Typography variant="label" style={{ fontSize: 10, marginTop: 8 }} color="#94A3B8">
-                    {['M','T','W','T','F','S','S'][i]}
-                  </Typography>
+          <>
+            <Card style={styles.progressSection} padding={24}>
+              <Typography variant="h3" weight="bold" style={{ marginBottom: 24 }}>Weekly Focus</Typography>
+              <View style={styles.barContainer}>
+                {barAnims.map((anim, i) => (
+                  <View key={i} style={styles.barWrapper}>
+                    <Animated.View
+                      style={[
+                        styles.bar,
+                        {
+                          height: anim,
+                          backgroundColor: i === 3 ? '#7C3AED' : '#C4B5FD'
+                        }
+                      ]}
+                    />
+                    <Typography variant="label" style={{ fontSize: 10, marginTop: 8 }} color="#94A3B8">
+                      {['M','T','W','T','F','S','S'][i]}
+                    </Typography>
+                  </View>
+                ))}
+              </View>
+            </Card>
+
+            {/* Mock Leaderboard Preview (Duolingo Style) */}
+            <Card style={styles.leaderboardPreview} padding={20}>
+              <View style={styles.leaderboardHeader}>
+                <Typography variant="h3" weight="black">Bronze League</Typography>
+                <Typography variant="caption" weight="bold" color="#7C3AED">View League</Typography>
+              </View>
+              <View style={styles.leaderboardList}>
+                <View style={styles.leaderboardItem}>
+                  <View style={[styles.rankCircle, { backgroundColor: '#FFD700' }]}>
+                    <Typography variant="label" color="white" weight="black">1</Typography>
+                  </View>
+                  <Typography variant="body" weight="bold" style={{ flex: 1, marginLeft: 12 }}>Alex R.</Typography>
+                  <Typography variant="body" weight="black">2,450 XP</Typography>
                 </View>
-              ))}
-            </View>
-          </Card>
+                <View style={styles.leaderboardItem}>
+                  <View style={[styles.rankCircle, { backgroundColor: '#C0C0C0' }]}>
+                    <Typography variant="label" color="white" weight="black">2</Typography>
+                  </View>
+                  <Typography variant="body" weight="bold" style={{ flex: 1, marginLeft: 12 }}>Sarah M.</Typography>
+                  <Typography variant="body" weight="black">1,820 XP</Typography>
+                </View>
+                <View style={[styles.leaderboardItem, styles.currentUserItem]}>
+                  <View style={[styles.rankCircle, { backgroundColor: '#7C3AED' }]}>
+                    <Typography variant="label" color="white" weight="black">3</Typography>
+                  </View>
+                  <Typography variant="body" weight="bold" style={{ flex: 1, marginLeft: 12 }}>{user?.name} (You)</Typography>
+                  <Typography variant="body" weight="black">{user?.xp} XP</Typography>
+                </View>
+              </View>
+            </Card>
+          </>
         )}
 
         {/* Primary Action Button */}
@@ -290,6 +328,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+  },
+  gemBadge: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
   guardianBubble: {
     marginBottom: 32,
@@ -390,9 +434,42 @@ const styles = StyleSheet.create({
   progressSection: {
     padding: 24,
     borderRadius: 24,
-    marginBottom: 32,
+    marginBottom: 24,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
+  },
+  leaderboardPreview: {
+    marginBottom: 32,
+    backgroundColor: 'rgba(124, 58, 237, 0.02)',
+    borderWidth: 1,
+    borderColor: 'rgba(124, 58, 237, 0.1)',
+  },
+  leaderboardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  leaderboardList: {
+    gap: 12,
+  },
+  leaderboardItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  currentUserItem: {
+    backgroundColor: 'rgba(124, 58, 237, 0.05)',
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    marginHorizontal: -12,
+  },
+  rankCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sectionTitle: {
     fontSize: 18,

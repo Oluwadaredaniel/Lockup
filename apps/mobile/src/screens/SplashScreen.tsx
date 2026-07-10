@@ -40,7 +40,7 @@ export const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
         <Image
-          source={require('../../../../assets/guardian_bear_3d.png')}
+          source={require('../../assets/guardian_bear_3d.png')}
           style={styles.logo}
           resizeMode="contain"
         />

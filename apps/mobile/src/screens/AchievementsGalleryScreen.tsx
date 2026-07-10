@@ -5,26 +5,21 @@ import { AchievementBadge } from '../components/achievements/AchievementBadge';
 import { Typography } from '../components/ui/Typography';
 import { Card } from '../components/ui/Card';
 
+import { useUser } from '../context/UserContext';
+
 interface Props {
   onBack: () => void;
 }
 
-const ACHIEVEMENTS = [
-  { id: '1', title: 'First Session', emoji: '🎯', unlocked: true, date: 'Oct 12' },
-  { id: '2', title: '7 Day Streak', emoji: '🔥', unlocked: true, date: 'Oct 19' },
-  { id: '3', title: 'Deep Work Master', emoji: '🧠', unlocked: true, date: 'Oct 20' },
-  { id: '4', title: 'Early Bird', emoji: '🌅', unlocked: false },
-  { id: '5', title: '30 Day Streak', emoji: '👑', unlocked: false },
-  { id: '6', title: 'Distraction Slayer', emoji: '⚔️', unlocked: false },
-  { id: '7', title: '100 Focus Hours', emoji: '⏳', unlocked: false },
-  { id: '8', title: 'Elite Discipline', emoji: '💎', unlocked: false },
-];
-
 export const AchievementsGalleryScreen: React.FC<Props> = ({ onBack }) => {
   const { theme } = useTheme();
+  const { user } = useUser();
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
-  const textColor = isDark ? '#FAF8FF' : '#111827';
+
+  const achievements = user?.achievements || [];
+  const unlockedCount = achievements.filter(a => a.unlocked).length;
+  const progressPercent = achievements.length > 0 ? (unlockedCount / achievements.length) * 100 : 0;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
@@ -39,15 +34,15 @@ export const AchievementsGalleryScreen: React.FC<Props> = ({ onBack }) => {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Card style={styles.summaryCard} padding={24}>
           <Typography variant="label" color="#94A3B8" weight="black" style={{ marginBottom: 16 }}>
-            3 / 8 ACHIEVEMENTS UNLOCKED
+            {unlockedCount} / {achievements.length} ACHIEVEMENTS UNLOCKED
           </Typography>
           <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: '37.5%' }]} />
+            <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
           </View>
         </Card>
 
         <View style={styles.grid}>
-          {ACHIEVEMENTS.map(item => (
+          {achievements.map(item => (
             <AchievementBadge
               key={item.id}
               title={item.title}

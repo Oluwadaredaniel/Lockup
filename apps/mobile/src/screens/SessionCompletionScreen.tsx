@@ -13,6 +13,9 @@ import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
 import { useUser } from '../context/UserContext';
 import { calculateSessionXP, LockLevel, SessionStatus } from '../../../../packages/core';
+import { Typography } from '../components/ui/Typography';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 
 import * as Haptics from 'expo-haptics';
 
@@ -87,17 +90,19 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
       <View style={styles.content}>
         <View style={styles.celebrationContainer}>
            <GuardianBear state="focus" size={240} />
-           {/* In a real app, we would add particle effects here */}
         </View>
 
-        <Text style={[styles.title, { color: textColor }]}>Session Complete</Text>
-        <Text style={styles.subtitle}>You protected your focus for {sessionData.duration} minutes.</Text>
+        <Typography variant="h1" weight="black" textAlign="center" style={{ marginBottom: 8 }}>
+          Session Complete
+        </Typography>
+        <Typography variant="body" color="#64748B" textAlign="center" style={{ marginBottom: 40 }}>
+          You protected your focus for {sessionData.duration} minutes.
+        </Typography>
 
         <Animated.View
           style={[
-            styles.rewardCard,
+            styles.rewardCardWrapper,
             {
-              backgroundColor: cardColor,
               opacity: opacityAnim,
               transform: [
                 { scale: scaleAnim },
@@ -106,28 +111,49 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
             }
           ]}
         >
-          <View style={styles.rewardItem}>
-            <Text style={styles.rewardLabel}>XP EARNED</Text>
-            <Text style={[styles.rewardValue, { color: '#7C3AED' }]}>+{xpEarned}</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.rewardItem}>
-            <Text style={styles.rewardLabel}>LEVEL</Text>
-            <Text style={[styles.rewardValue, { color: textColor }]}>{user?.level || 1}</Text>
-          </View>
+          <Card padding={32} style={styles.rewardCard}>
+            <View style={styles.rewardItem}>
+              <Typography variant="label" weight="black" color="#94A3B8" style={{ letterSpacing: 1 }}>XP EARNED</Typography>
+              <Typography variant="h1" weight="black" color="#7C3AED">+{xpEarned}</Typography>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.rewardItem}>
+              <Typography variant="label" weight="black" color="#94A3B8" style={{ letterSpacing: 1 }}>LEVEL</Typography>
+              <Typography variant="h1" weight="black">{user?.level || 1}</Typography>
+            </View>
+          </Card>
         </Animated.View>
 
-        <View style={styles.messageContainer}>
-          <Text style={styles.quote}>"Discipline is the bridge between goals and accomplishment."</Text>
+        {/* Level Progress Bar (Duolingo Style) */}
+        <View style={styles.levelProgressContainer}>
+          <View style={styles.levelInfo}>
+            <Typography variant="label" weight="black">LEVEL {user?.level}</Typography>
+            <Typography variant="label" weight="black" color="#94A3B8">
+              {user?.xp ? (user.xp % 500) : 0} / 500 XP
+            </Typography>
+          </View>
+          <View style={styles.progressBarBg}>
+            <View
+              style={[
+                styles.progressBarFill,
+                { width: `${((user?.xp || 0) % 500) / 500 * 100}%` }
+              ]}
+            />
+          </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.continueButton}
-          activeOpacity={0.9}
+        <View style={styles.messageContainer}>
+          <Typography variant="body" color="#64748B" textAlign="center" style={{ fontStyle: 'italic', lineHeight: 24 }}>
+            "Discipline is the bridge between goals and accomplishment."
+          </Typography>
+        </View>
+
+        <Button
+          title="Collect Rewards"
           onPress={onContinue}
-        >
-          <Text style={styles.continueButtonText}>Collect Rewards</Text>
-        </TouchableOpacity>
+          size="large"
+          style={{ width: '100%' }}
+        />
       </View>
     </SafeAreaView>
   );
@@ -147,81 +173,48 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     alignItems: 'center',
   },
-  title: {
-    fontSize: 32,
-    fontWeight: '900',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#64748B',
-    textAlign: 'center',
-    marginBottom: 40,
-    fontWeight: '500',
+  rewardCardWrapper: {
+    width: '100%',
+    marginBottom: 32,
   },
   rewardCard: {
-    width: '100%',
-    padding: 32,
-    borderRadius: 24,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    marginBottom: 48,
     borderWidth: 1,
     borderColor: 'rgba(124, 58, 237, 0.1)',
-    shadowColor: '#7C3AED',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 4,
   },
   rewardItem: {
     alignItems: 'center',
-  },
-  rewardLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#94A3B8',
-    letterSpacing: 1,
-    marginBottom: 8,
-  },
-  rewardValue: {
-    fontSize: 32,
-    fontWeight: '900',
+    gap: 8,
   },
   divider: {
     width: 1,
     height: 40,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  levelProgressContainer: {
+    width: '100%',
+    marginBottom: 48,
+  },
+  levelInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  progressBarBg: {
+    height: 12,
+    backgroundColor: 'rgba(124, 58, 237, 0.1)',
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#7C3AED',
+    borderRadius: 6,
   },
   messageContainer: {
     paddingHorizontal: 32,
     marginBottom: 48,
-  },
-  quote: {
-    fontSize: 16,
-    color: '#64748B',
-    textAlign: 'center',
-    fontStyle: 'italic',
-    lineHeight: 24,
-  },
-  continueButton: {
-    backgroundColor: '#7C3AED',
-    height: 64,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    shadowColor: '#7C3AED',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  continueButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '800',
   },
 });

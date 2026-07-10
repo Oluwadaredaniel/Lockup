@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserProfile, getLevelFromXP, calculateDisciplineScore } from '../../../../packages/core';
+import { UserProfile, getLevelFromXP, calculateDisciplineScore, DEFAULT_ACHIEVEMENTS } from '../../../../packages/core';
 import { NotificationService } from '../services/NotificationService';
 
 interface UserContextType {
@@ -8,6 +8,7 @@ interface UserContextType {
   completeSession: (xp: number) => void;
   failSession: () => void;
   updateSettings: (settings: Partial<UserProfile>) => void;
+  unlockAchievement: (id: string) => void;
   loading: boolean;
 }
 
@@ -32,6 +33,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       weeklyActivity: [40, 70, 45, 90, 65, 30, 80],
       dailyXPGoal: 50,
       notificationsEnabled: true,
+      achievements: [
+        { ...DEFAULT_ACHIEVEMENTS[0], unlocked: true, date: 'Oct 12' },
+        { ...DEFAULT_ACHIEVEMENTS[1], unlocked: true, date: 'Oct 19' },
+        { ...DEFAULT_ACHIEVEMENTS[2], unlocked: true, date: 'Oct 20' },
+        ...DEFAULT_ACHIEVEMENTS.slice(3)
+      ],
+      gems: 450,
     };
     setUser(mockUser);
     setLoading(false);
@@ -40,7 +48,33 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     NotificationService.registerForPushNotificationsAsync().then(token => {
       if (token) console.log('Push Token:', token);
     });
+
+    checkStreak(mockUser);
   }, []);
+
+  const checkStreak = (currentUser: UserProfile) => {
+    const lastActive = new Date(currentUser.lastActive);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - lastActive.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 1) {
+      // Streak at risk!
+      NotificationService.sendInstantNotification(
+        "Streak at Risk! 🔥",
+        "Your streak is about to break. Complete a session now to save it!"
+      );
+
+      if (diffDays > 2) {
+        // Streak broken
+        setUser(prev => prev ? { ...prev, streak: 0 } : null);
+        NotificationService.sendInstantNotification(
+          "Streak Broken ❄️",
+          "You missed a few days and your streak has reset. The Guardian Bear is waiting for you to start fresh."
+        );
+      }
+    }
+  };
 
   const addXP = (amount: number) => {
     setUser(prev => {
@@ -63,6 +97,27 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  const unlockAchievement = (id: string) => {
+    setUser(prev => {
+      if (!prev) return null;
+      const isAlreadyUnlocked = prev.achievements.find(a => a.id === id)?.unlocked;
+      if (isAlreadyUnlocked) return prev;
+
+      NotificationService.sendInstantNotification(
+        "Achievement Unlocked! 🏅",
+        `Congratulations! You've earned: ${prev.achievements.find(a => a.id === id)?.title}`
+      );
+
+      return {
+        ...prev,
+        achievements: prev.achievements.map(a =>
+          a.id === id ? { ...a, unlocked: true, date: new Date().toLocaleDateString() } : a
+        ),
+        gems: prev.gems + 50, // Reward for achievement
+      };
+    });
+  };
+
   const completeSession = (amount: number) => {
     setUser(prev => {
       if (!prev) return null;
@@ -73,6 +128,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const todayIndex = (new Date().getDay() + 6) % 7; // Mon is 0
       const newActivity = [...prev.weeklyActivity];
       newActivity[todayIndex] = Math.min(100, newActivity[todayIndex] + 10);
+
+      // Achievement check: First session
+      if (newCompleted === 1) {
+        setTimeout(() => unlockAchievement('1'), 500);
+      }
 
       // Goal Check
       if (prev.xp % prev.dailyXPGoal + amount >= prev.dailyXPGoal) {
@@ -122,7 +182,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <UserContext.Provider value={{ user, addXP, completeSession, failSession, updateSettings, loading }}>
+    <UserContext.Provider value={{ user, addXP, completeSession, failSession, updateSettings, unlockAchievement, loading }}>
       {children}
     </UserContext.Provider>
   );
