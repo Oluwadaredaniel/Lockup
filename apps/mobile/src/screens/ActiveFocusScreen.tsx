@@ -38,6 +38,7 @@ interface Props {
 export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, onAbandon, onSimulateDistraction }) => {
   const { theme } = useTheme();
   const { secondsRemaining, status, abandon, complete } = useFocusSession(sessionData.duration);
+  const [mascotState, setMascotState] = useState<'focus' | 'alert' | 'disappointed'>('focus');
   const totalSeconds = sessionData.duration * 60;
 
   const shakeAnim = useRef(new Animated.Value(0)).current;
@@ -71,20 +72,22 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
     if (sessionData.selectedLockLevel === LockLevel.Flexible) {
       abandon();
     } else if (sessionData.selectedLockLevel === LockLevel.Commitment) {
+      setMascotState('disappointed');
       Alert.alert(
         "Break Commitment?",
         "If you leave now, you will lose XP and your streak protection will be at risk.",
         [
-          { text: "Stay Focused", style: "cancel" },
+          { text: "Stay Focused", style: "cancel", onPress: () => setMascotState('focus') },
           { text: "Abandon", style: "destructive", onPress: abandon }
         ]
       );
     } else {
       triggerShake();
+      setMascotState('alert');
       Alert.alert(
         "Session Locked",
         "This is a Level 3 Strict Session. You cannot exit until the timer completes.",
-        [{ text: "Understood", style: "default" }]
+        [{ text: "Understood", style: "default", onPress: () => setMascotState('focus') }]
       );
     }
   };
@@ -123,7 +126,7 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
         </Svg>
 
         <View style={styles.timerContent}>
-          <GuardianBear state="focus" size={140} />
+          <GuardianBear state={mascotState} size={140} />
           <Text style={[styles.timerText, { color: textColor }]}>
             {formatDuration(secondsRemaining)}
           </Text>
