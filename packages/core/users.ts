@@ -14,6 +14,8 @@ export const createInitialProfile = (uid: string, name: string): UserProfile => 
   completedSessions: 0,
   failedSessions: 0,
   weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
+  dailyXPGoal: 50,
+  notificationsEnabled: true,
 });
 
 /**

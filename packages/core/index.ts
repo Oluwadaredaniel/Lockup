@@ -21,6 +21,8 @@ export interface UserProfile {
   completedSessions: number;
   failedSessions: number;
   weeklyActivity: number[];
+  dailyXPGoal: number;
+  notificationsEnabled: boolean;
 }
 
 /**
