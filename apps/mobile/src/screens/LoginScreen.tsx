@@ -12,8 +12,10 @@ import {
   Animated
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../hooks/useAuth';
 import { GuardianBear } from '../components/mascot/GuardianBear';
 import * as Haptics from 'expo-haptics';
+import { ActivityIndicator } from 'react-native';
 
 interface Props {
   onLogin: () => void;
@@ -22,6 +24,7 @@ interface Props {
 
 export const LoginScreen: React.FC<Props> = ({ onLogin, onSignUp }) => {
   const { theme } = useTheme();
+  const { login, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -35,9 +38,14 @@ export const LoginScreen: React.FC<Props> = ({ onLogin, onSignUp }) => {
     ]).start();
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    onLogin();
+    if (email && password) {
+      await login(email, password);
+      // App.tsx will handle the state change based on authUser
+    } else {
+      onLogin(); // Fallback for debugging if needed
+    }
   };
 
   const isDark = theme === 'dark';
@@ -97,11 +105,16 @@ export const LoginScreen: React.FC<Props> = ({ onLogin, onSignUp }) => {
             </View>
 
             <TouchableOpacity
-              style={styles.loginButton}
+              style={[styles.loginButton, loading && { opacity: 0.7 }]}
               onPress={handleLogin}
               activeOpacity={0.8}
+              disabled={loading}
             >
-              <Text style={styles.loginButtonText}>Sign In</Text>
+              {loading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={styles.loginButtonText}>Sign In</Text>
+              )}
             </TouchableOpacity>
 
             <View style={styles.dividerContainer}>
