@@ -18,6 +18,8 @@ export interface UserProfile {
   disciplineScore: number; // 0 - 1000
   streak: number;
   lastActive: Date;
+  completedSessions: number;
+  failedSessions: number;
 }
 
 /**
