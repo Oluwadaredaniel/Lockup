@@ -20,6 +20,7 @@ export interface UserProfile {
   lastActive: Date;
   completedSessions: number;
   failedSessions: number;
+  weeklyActivity: number[];
 }
 
 /**
