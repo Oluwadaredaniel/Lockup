@@ -14,6 +14,8 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../hooks/useAuth';
 import { GuardianBear } from '../components/mascot/GuardianBear';
+import { Typography } from '../components/ui/Typography';
+import { Button } from '../components/ui/Button';
 import * as Haptics from 'expo-haptics';
 import { ActivityIndicator } from 'react-native';
 
@@ -64,8 +66,8 @@ export const LoginScreen: React.FC<Props> = ({ onLogin, onSignUp }) => {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
             <GuardianBear state="idle" size={120} />
-            <Text style={[styles.title, { color: textColor }]}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to continue your journey</Text>
+            <Typography variant="h1" weight="black" style={{ marginTop: 16 }}>Welcome Back</Typography>
+            <Typography variant="body" color="#64748B" style={{ marginTop: 4 }}>Sign in to continue your journey</Typography>
           </View>
 
           <Animated.View
@@ -104,18 +106,12 @@ export const LoginScreen: React.FC<Props> = ({ onLogin, onSignUp }) => {
               />
             </View>
 
-            <TouchableOpacity
-              style={[styles.loginButton, loading && { opacity: 0.7 }]}
+            <Button
+              title="Sign In"
               onPress={handleLogin}
-              activeOpacity={0.8}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text style={styles.loginButtonText}>Sign In</Text>
-              )}
-            </TouchableOpacity>
+              loading={loading}
+              style={{ marginTop: 12 }}
+            />
 
             <View style={styles.dividerContainer}>
               <View style={[styles.divider, { backgroundColor: borderColor }]} />
