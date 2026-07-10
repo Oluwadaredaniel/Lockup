@@ -13,6 +13,8 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { useUser } from '../context/UserContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
+import { Typography } from '../components/ui/Typography';
+import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/feedback/EmptyState';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 
@@ -109,16 +111,16 @@ export const DashboardScreen: React.FC<Props> = ({
         {/* Header Section */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onViewProfile}>
-            <Text style={styles.greeting}>Good Morning,</Text>
-            <Text style={[styles.name, { color: textColor }]}>{user?.name || 'Guardian'}</Text>
+            <Typography variant="caption" weight="semibold" color="#64748B">Good Morning,</Typography>
+            <Typography variant="h2" weight="black">{user?.name || 'Guardian'}</Typography>
           </TouchableOpacity>
           <View style={styles.headerActions}>
             <TouchableOpacity onPress={onShare} style={styles.shareIconButton}>
               <Text style={styles.shareIcon}>🔗</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.levelBadge, { backgroundColor: '#7C3AED' }]}>
-              <Text style={styles.levelText}>Level {user?.level || 1}</Text>
-            </TouchableOpacity>
+            <View style={[styles.levelBadge, { backgroundColor: '#7C3AED' }]}>
+              <Typography variant="label" color="white" weight="bold">Level {user?.level || 1}</Typography>
+            </View>
           </View>
         </View>
 
@@ -157,8 +159,10 @@ export const DashboardScreen: React.FC<Props> = ({
 
           <View style={styles.scoreContent}>
             <GuardianBear state="idle" size={120} />
-            <Text style={[styles.scoreValue, { color: textColor }]}>{disciplineScore}</Text>
-            <Text style={styles.scoreLabel}>Discipline Score</Text>
+            <Typography variant="h1" weight="black" style={{ marginTop: -10, fontSize: 48 }}>
+              {disciplineScore}
+            </Typography>
+            <Typography variant="label" weight="bold" color="#94A3B8">Discipline Score</Typography>
           </View>
         </View>
 
@@ -217,13 +221,12 @@ export const DashboardScreen: React.FC<Props> = ({
         )}
 
         {/* Primary Action Button */}
-        <TouchableOpacity
-          style={styles.actionButton}
-          activeOpacity={0.9}
+        <Button
+          title="Start Focus Session"
           onPress={onStartSession}
-        >
-          <Text style={styles.actionButtonText}>Start Focus Session</Text>
-        </TouchableOpacity>
+          size="large"
+          style={{ marginTop: 8 }}
+        />
 
       </ScrollView>
     </SafeAreaView>
