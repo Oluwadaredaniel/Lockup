@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
-import { calculateSessionXP, LockLevel } from '../../../../packages/core';
+import { useUser } from '../context/UserContext';
+import { calculateSessionXP, LockLevel, SessionStatus } from '../../../../packages/core';
 
 import * as Haptics from 'expo-haptics';
 
@@ -28,11 +29,20 @@ interface Props {
 
 export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContinue }) => {
   const { theme } = useTheme();
+  const { user, addXP } = useUser();
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
+  const xpEarned = calculateSessionXP(
+    sessionData.duration,
+    sessionData.selectedLockLevel,
+    SessionStatus.Completed
+  );
+
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    addXP(xpEarned);
+
     Animated.parallel([
       Animated.spring(scaleAnim, {
         toValue: 1,
@@ -87,9 +97,9 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
           <View style={styles.divider} />
           <View style={styles.rewardItem}>
             <Text style={styles.rewardLabel}>LEVEL</Text>
-            <Text style={[styles.rewardValue, { color: textColor }]}>12</Text>
+            <Text style={[styles.rewardValue, { color: textColor }]}>{user?.level || 1}</Text>
           </View>
-        </View>
+        </Animated.View>
 
         <View style={styles.messageContainer}>
           <Text style={styles.quote}>"Discipline is the bridge between goals and accomplishment."</Text>
