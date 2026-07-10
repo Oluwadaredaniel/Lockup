@@ -48,8 +48,9 @@ export const DashboardScreen: React.FC<Props> = ({
   const hasData = !!user;
   const disciplineScore = user?.disciplineScore || 0;
   const progress = disciplineScore / 1000;
+  const activity = user?.weeklyActivity || [0, 0, 0, 0, 0, 0, 0];
 
-  const barAnims = useRef([40, 70, 45, 90, 65, 30, 80].map(() => new Animated.Value(0))).current;
+  const barAnims = useRef(activity.map(() => new Animated.Value(0))).current;
 
   useEffect(() => {
     // Sequence: Entry animation for the whole dashboard
@@ -75,14 +76,14 @@ export const DashboardScreen: React.FC<Props> = ({
       // Staggered bar growth animation
       Animated.stagger(100, barAnims.map((anim, i) =>
         Animated.timing(anim, {
-          toValue: [40, 70, 45, 90, 65, 30, 80][i],
+          toValue: activity[i],
           duration: 1000,
           easing: Easing.out(Easing.exp),
           useNativeDriver: false, // height cannot be animated with native driver
         })
       ))
     ]).start();
-  }, []);
+  }, [user]);
 
   // Using Animated's current value to calculate the stroke offset dynamically
   const strokeDashoffset = gaugeAnim.interpolate({
