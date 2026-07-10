@@ -170,7 +170,7 @@ export const DashboardScreen: React.FC<Props> = ({
           >
             <Text style={styles.statEmoji}>🔥</Text>
             <View>
-              <Text style={[styles.statValue, { color: textColor }]}>12</Text>
+              <Text style={[styles.statValue, { color: textColor }]}>{user?.streak || 0}</Text>
               <Text style={styles.statLabel}>Days Streak</Text>
             </View>
           </TouchableOpacity>
@@ -180,7 +180,9 @@ export const DashboardScreen: React.FC<Props> = ({
           >
             <Text style={styles.statEmoji}>⭐</Text>
             <View>
-              <Text style={[styles.statValue, { color: textColor }]}>2.4k</Text>
+              <Text style={[styles.statValue, { color: textColor }]}>
+                {user?.xp ? (user.xp > 1000 ? `${(user.xp / 1000).toFixed(1)}k` : user.xp) : 0}
+              </Text>
               <Text style={styles.statLabel}>Total XP</Text>
             </View>
           </TouchableOpacity>
