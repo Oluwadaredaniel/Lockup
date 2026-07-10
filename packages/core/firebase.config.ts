@@ -19,4 +19,11 @@ export enum Collections {
   XPTransactions = 'xp_transactions',
   Streaks = 'streaks',
   Achievements = 'achievements',
+  GlobalStats = 'global_stats',
 }
+
+export const STORAGE_KEYS = {
+  USER_PROFILE: '@lockup_user_profile',
+  ACTIVE_SESSION: '@lockup_active_session',
+  THEME: '@lockup_theme',
+};
