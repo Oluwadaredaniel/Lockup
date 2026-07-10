@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { LockLevel } from '../../../../packages/core/types';
+import * as Haptics from 'expo-haptics';
 
 interface Props {
   onBack: () => void;
@@ -58,7 +59,10 @@ export const FocusSessionSetupScreen: React.FC<Props> = ({ onBack, onStart }) =>
             {TASKS.map(task => (
               <TouchableOpacity
                 key={task}
-                onPress={() => setSelectedTask(task)}
+                onPress={() => {
+                  Haptics.selectionAsync();
+                  setSelectedTask(task);
+                }}
                 style={[
                   styles.chip,
                   { borderColor },
@@ -82,7 +86,10 @@ export const FocusSessionSetupScreen: React.FC<Props> = ({ onBack, onStart }) =>
             {DURATIONS.map(d => (
               <TouchableOpacity
                 key={d}
-                onPress={() => setDuration(d)}
+                onPress={() => {
+                  Haptics.selectionAsync();
+                  setDuration(d);
+                }}
                 style={[
                   styles.chip,
                   { borderColor },
@@ -105,7 +112,10 @@ export const FocusSessionSetupScreen: React.FC<Props> = ({ onBack, onStart }) =>
           {[LockLevel.Flexible, LockLevel.Commitment, LockLevel.Strict].map(level => (
             <TouchableOpacity
               key={level}
-              onPress={() => setSelectedLockLevel(level)}
+              onPress={() => {
+                Haptics.selectionAsync();
+                setSelectedLockLevel(level);
+              }}
               style={[
                 styles.lockCard,
                 { backgroundColor: cardColor, borderColor },
@@ -126,7 +136,10 @@ export const FocusSessionSetupScreen: React.FC<Props> = ({ onBack, onStart }) =>
         <TouchableOpacity
           style={styles.startButton}
           activeOpacity={0.9}
-          onPress={() => onStart({ selectedTask, duration, selectedLockLevel })}
+          onPress={() => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            onStart({ selectedTask, duration, selectedLockLevel });
+          }}
         >
           <Text style={styles.startButtonText}>Initiate Focus</Text>
         </TouchableOpacity>
