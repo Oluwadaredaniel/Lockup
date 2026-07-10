@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { UserProvider } from './src/context/UserContext';
+import { useAuth } from './src/hooks/useAuth';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { SignupScreen } from './src/screens/SignupScreen';
@@ -21,9 +22,20 @@ type AppState = 'splash' | 'onboarding' | 'login' | 'signup' | 'dashboard' | 'fo
 
 const Main = () => {
   const { theme } = useTheme();
+  const { user: authUser, loading: authLoading } = useAuth();
   const [appState, setAppState] = useState<AppState>('splash');
   const [currentSession, setCurrentSession] = useState<any>(null);
   const [lastError, setLastError] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (authUser && (appState === 'login' || appState === 'signup')) {
+        setAppState('dashboard');
+      } else if (!authUser && appState === 'dashboard') {
+        setAppState('login');
+      }
+    }
+  }, [authUser, authLoading]);
 
   const renderScreen = () => {
     if (appState === 'error') {
