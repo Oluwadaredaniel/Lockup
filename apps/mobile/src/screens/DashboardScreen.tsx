@@ -15,6 +15,7 @@ import { useUser } from '../context/UserContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
 import { Typography } from '../components/ui/Typography';
 import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/feedback/EmptyState';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 
@@ -169,28 +170,30 @@ export const DashboardScreen: React.FC<Props> = ({
 
         {/* Stats Row */}
         <View style={styles.statsRow}>
-          <TouchableOpacity
-            style={[styles.statCard, { backgroundColor: cardColor }]}
+          <Card
+            style={styles.statCard}
+            padding={16}
             onPress={onViewAchievements}
           >
             <Text style={styles.statEmoji}>🔥</Text>
             <View>
-              <Text style={[styles.statValue, { color: textColor }]}>{user?.streak || 0}</Text>
-              <Text style={styles.statLabel}>Days Streak</Text>
+              <Typography variant="body" weight="bold">{user?.streak || 0}</Typography>
+              <Typography variant="caption" weight="semibold" color="#64748B">Days Streak</Typography>
             </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.statCard, { backgroundColor: cardColor }]}
+          </Card>
+          <Card
+            style={styles.statCard}
+            padding={16}
             onPress={onViewXP}
           >
             <Text style={styles.statEmoji}>⭐</Text>
             <View>
-              <Text style={[styles.statValue, { color: textColor }]}>
+              <Typography variant="body" weight="bold">
                 {user?.xp ? (user.xp > 1000 ? `${(user.xp / 1000).toFixed(1)}k` : user.xp) : 0}
-              </Text>
-              <Text style={styles.statLabel}>Total XP</Text>
+              </Typography>
+              <Typography variant="caption" weight="semibold" color="#64748B">Total XP</Typography>
             </View>
-          </TouchableOpacity>
+          </Card>
         </View>
 
         {/* Weekly Progress Placeholder */}
@@ -200,8 +203,8 @@ export const DashboardScreen: React.FC<Props> = ({
             description="Your weekly discipline chart will appear here once you complete your first session."
           />
         ) : (
-          <View style={[styles.progressSection, { backgroundColor: cardColor }]}>
-            <Text style={[styles.sectionTitle, { color: textColor }]}>Weekly Focus</Text>
+          <Card style={styles.progressSection} padding={24}>
+            <Typography variant="h3" weight="bold" style={{ marginBottom: 24 }}>Weekly Focus</Typography>
             <View style={styles.barContainer}>
               {barAnims.map((anim, i) => (
                 <View key={i} style={styles.barWrapper}>
@@ -214,11 +217,13 @@ export const DashboardScreen: React.FC<Props> = ({
                       }
                     ]}
                   />
-                  <Text style={styles.barDay}>{['M','T','W','T','F','S','S'][i]}</Text>
+                  <Typography variant="label" style={{ fontSize: 10, marginTop: 8 }} color="#94A3B8">
+                    {['M','T','W','T','F','S','S'][i]}
+                  </Typography>
                 </View>
               ))}
             </View>
-          </View>
+          </Card>
         )}
 
         {/* Primary Action Button */}
