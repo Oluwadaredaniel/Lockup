@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { UserProvider } from './src/context/UserContext';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { SignupScreen } from './src/screens/SignupScreen';
@@ -121,7 +122,9 @@ const Main = () => {
 export default function App() {
   return (
     <ThemeProvider>
-      <Main />
+      <UserProvider>
+        <Main />
+      </UserProvider>
     </ThemeProvider>
   );
 }
