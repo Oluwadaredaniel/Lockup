@@ -1,6 +1,9 @@
 import React from 'react';
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext';
+import { Typography } from '../components/ui/Typography';
+import { Card } from '../components/ui/Card';
 
 interface Props {
   onBack: () => void;
@@ -17,46 +20,50 @@ const TRANSACTIONS = [
 
 export const XPHistoryScreen: React.FC<Props> = ({ onBack }) => {
   const { theme } = useTheme();
+  const { user } = useUser();
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
-  const textColor = isDark ? '#FAF8FF' : '#111827';
-  const cardColor = isDark ? '#0F172A' : '#FFFFFF';
   const borderColor = isDark ? '#1E293B' : '#E2E8F0';
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack}>
-          <Text style={[styles.backText, { color: '#7C3AED' }]}>Back</Text>
+          <Typography variant="body" weight="semibold" color="#7C3AED">Back</Typography>
         </TouchableOpacity>
-        <Text style={[styles.title, { color: textColor }]}>XP History</Text>
+        <Typography variant="h3" weight="black">XP History</Typography>
         <View style={{ width: 50 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.totalCard}>
-          <Text style={styles.totalLabel}>TOTAL LIFETIME XP</Text>
-          <Text style={styles.totalValue}>2,450</Text>
+          <Typography variant="label" color="rgba(255,255,255,0.7)" weight="black" style={{ letterSpacing: 2 }}>
+            TOTAL LIFETIME XP
+          </Typography>
+          <Typography variant="h1" weight="black" color="white" style={{ fontSize: 48, marginTop: 8 }}>
+            {user?.xp.toLocaleString() || '0'}
+          </Typography>
         </View>
 
-        <Text style={[styles.sectionTitle, { color: textColor }]}>Recent Transactions</Text>
+        <Typography variant="h3" weight="black" style={{ marginBottom: 20 }}>Recent Transactions</Typography>
 
         {TRANSACTIONS.map(item => (
-          <View key={item.id} style={[styles.transactionCard, { backgroundColor: cardColor, borderColor }]}>
+          <Card key={item.id} style={styles.transactionCard} padding={16}>
             <View style={styles.iconContainer}>
               <Text style={styles.icon}>{item.type === 'gain' ? '✨' : '⚠️'}</Text>
             </View>
             <View style={styles.details}>
-              <Text style={[styles.reason, { color: textColor }]}>{item.reason}</Text>
-              <Text style={styles.date}>{item.date}</Text>
+              <Typography variant="body" weight="bold">{item.reason}</Typography>
+              <Typography variant="caption" color="#64748B">{item.date}</Typography>
             </View>
-            <Text style={[
-              styles.amount,
-              { color: item.type === 'gain' ? '#10B981' : '#EF4444' }
-            ]}>
+            <Typography
+              variant="body"
+              weight="black"
+              color={item.type === 'gain' ? '#10B981' : '#EF4444'}
+            >
               {item.type === 'gain' ? '+' : ''}{item.amount}
-            </Text>
-          </View>
+            </Typography>
+          </Card>
         ))}
       </ScrollView>
     </SafeAreaView>
