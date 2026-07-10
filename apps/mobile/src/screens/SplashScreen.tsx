@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Image, Dimensions, SafeAreaView } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { Typography } from '../components/ui/Typography';
 
 const { width } = Dimensions.get('window');
 
@@ -34,7 +35,6 @@ export const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
 
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
-  const textColor = isDark ? '#FAF8FF' : '#111827';
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
@@ -44,8 +44,12 @@ export const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={[styles.title, { color: textColor }]}>LOCKUP</Text>
-        <Text style={styles.tagline}>DISCIPLINE BEATS MOTIVATION</Text>
+        <Typography variant="h1" weight="black" style={{ letterSpacing: 8 }}>
+          LOCKUP
+        </Typography>
+        <Typography variant="label" weight="black" color="#7C3AED" style={{ letterSpacing: 4, marginTop: 8 }}>
+          DISCIPLINE BEATS MOTIVATION
+        </Typography>
       </Animated.View>
     </SafeAreaView>
   );
