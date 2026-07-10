@@ -1,15 +1,17 @@
 import React from 'react';
-import { View, ViewProps, StyleSheet } from 'react-native';
+import { View, ViewProps, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 
 interface Props extends ViewProps {
   variant?: 'elevated' | 'outlined' | 'flat';
   padding?: number;
+  onPress?: () => void;
 }
 
 export const Card: React.FC<Props> = ({
   variant = 'elevated',
   padding = 24,
+  onPress,
   style,
   children,
   ...props
@@ -28,7 +30,7 @@ export const Card: React.FC<Props> = ({
     }
   };
 
-  return (
+  const content = (
     <View
       style={[
         styles.base,
@@ -41,6 +43,16 @@ export const Card: React.FC<Props> = ({
       {children}
     </View>
   );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
+        {content}
+      </TouchableOpacity>
+    );
+  }
+
+  return content;
 };
 
 const styles = StyleSheet.create({
