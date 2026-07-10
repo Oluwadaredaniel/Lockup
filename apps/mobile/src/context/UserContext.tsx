@@ -5,6 +5,7 @@ interface UserContextType {
   user: UserProfile | null;
   addXP: (amount: number) => void;
   completeSession: (xp: number) => void;
+  failSession: () => void;
   loading: boolean;
 }
 
@@ -67,8 +68,22 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  const failSession = () => {
+    setUser(prev => {
+      if (!prev) return null;
+      const newFailed = prev.failedSessions + 1;
+      const newScore = calculateDisciplineScore(prev.completedSessions, newFailed, prev.streak);
+      return {
+        ...prev,
+        failedSessions: newFailed,
+        disciplineScore: newScore,
+        lastActive: new Date(),
+      };
+    });
+  };
+
   return (
-    <UserContext.Provider value={{ user, addXP, completeSession, loading }}>
+    <UserContext.Provider value={{ user, addXP, completeSession, failSession, loading }}>
       {children}
     </UserContext.Provider>
   );
