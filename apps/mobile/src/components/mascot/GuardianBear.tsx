@@ -4,7 +4,7 @@ import Svg, { G, Circle, Path, Rect, Ellipse, Defs, Filter, FeGaussianBlur, FeMe
 import { useTheme } from '../../context/ThemeContext';
 
 interface Props {
-  state?: 'focus' | 'idle' | 'alert';
+  state?: 'focus' | 'idle' | 'alert' | 'disappointed';
   size?: number;
   animate?: boolean;
 }
@@ -142,6 +142,12 @@ export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300, ani
                 <Rect x="108" y="146" width="74" height="50" rx="25" fill={visorColor} />
                 <Rect x="218" y="146" width="74" height="50" rx="25" fill={visorColor} />
                 <Rect x="176" y="163" width="48" height="16" rx="8" fill={visorColor} />
+              </G>
+            )}
+            {state === 'disappointed' && (
+              <G id="visor-disappointed">
+                <Path d="M112,185 Q145,170 178,185" stroke={visorColor} strokeWidth="6" strokeLinecap="round" opacity={0.5} />
+                <Path d="M222,185 Q255,170 288,185" stroke={visorColor} strokeWidth="6" strokeLinecap="round" opacity={0.5} />
               </G>
             )}
           </AnimatedG>
