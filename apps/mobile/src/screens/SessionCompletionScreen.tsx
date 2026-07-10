@@ -32,6 +32,7 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
   const { user, completeSession } = useUser();
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const xpEarned = calculateSessionXP(
     sessionData.duration,
@@ -56,6 +57,24 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
         useNativeDriver: true,
       }),
     ]).start();
+
+    // Loop for reward card pulse
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 1000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
   }, []);
 
   const isDark = theme === 'dark';
@@ -80,7 +99,10 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
             {
               backgroundColor: cardColor,
               opacity: opacityAnim,
-              transform: [{ scale: scaleAnim }]
+              transform: [
+                { scale: scaleAnim },
+                { scale: pulseAnim }
+              ]
             }
           ]}
         >
