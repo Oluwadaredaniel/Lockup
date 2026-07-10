@@ -13,6 +13,7 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
 import { useFocusSession } from '../hooks/useFocusSession';
+import { Typography } from '../components/ui/Typography';
 import { LockLevel, formatDuration, SessionStatus } from '../../../../packages/core';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -96,9 +97,11 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={styles.header}>
         <View style={[styles.levelBadge, { backgroundColor: '#7C3AED' }]}>
-          <Text style={styles.levelText}>Level {sessionData.selectedLockLevel}: {LockLevel[sessionData.selectedLockLevel]}</Text>
+          <Typography variant="label" color="white" weight="bold">
+            Level {sessionData.selectedLockLevel}: {LockLevel[sessionData.selectedLockLevel]}
+          </Typography>
         </View>
-        <Text style={[styles.taskTitle, { color: textColor }]}>{sessionData.selectedTask}</Text>
+        <Typography variant="h2" weight="black">{sessionData.selectedTask}</Typography>
       </View>
 
       <View style={styles.timerContainer}>
@@ -127,15 +130,15 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
 
         <View style={styles.timerContent}>
           <GuardianBear state={mascotState} size={140} />
-          <Text style={[styles.timerText, { color: textColor }]}>
+          <Typography variant="h1" weight="black" style={{ fontSize: 64, marginTop: 16 }}>
             {formatDuration(secondsRemaining)}
-          </Text>
+          </Typography>
         </View>
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.instruction}>Stay focused on your task</Text>
-        <Animated.View style={{ transform: [{ translateX: shakeAnim }] }}>
+        <Typography variant="body" color="#94A3B8" weight="semibold">Stay focused on your task</Typography>
+        <Animated.View style={{ transform: [{ translateX: shakeAnim }], width: '100%', alignItems: 'center' }}>
           <TouchableOpacity
             onPress={handleExit}
             style={[
@@ -144,15 +147,17 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
               sessionData.selectedLockLevel === LockLevel.Strict && { opacity: 0.5 }
             ]}
           >
-            <Text style={[styles.exitButtonText, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+            <Typography variant="caption" weight="bold" color={isDark ? '#94A3B8' : '#64748B'}>
               {sessionData.selectedLockLevel === LockLevel.Strict ? '🔒 Locked' : 'Give Up'}
-            </Text>
+            </Typography>
           </TouchableOpacity>
         </Animated.View>
 
         {onSimulateDistraction && (
           <TouchableOpacity onPress={onSimulateDistraction} style={styles.debugButton}>
-            <Text style={styles.debugText}>[DEBUG] Simulate Distraction</Text>
+            <Typography variant="caption" style={{ fontStyle: 'italic' }} color="#94A3B8">
+              [DEBUG] Simulate Distraction
+            </Typography>
           </TouchableOpacity>
         )}
       </View>
