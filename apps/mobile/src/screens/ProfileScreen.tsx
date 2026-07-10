@@ -9,7 +9,11 @@ import {
   Switch
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
+import { Typography } from '../components/ui/Typography';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 
 interface Props {
   onBack: () => void;
@@ -18,6 +22,7 @@ interface Props {
 
 export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
   const { theme, toggleTheme } = useTheme();
+  const { user } = useUser();
 
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
@@ -33,7 +38,7 @@ export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
     >
       <View style={styles.settingLeft}>
         <Text style={styles.settingIcon}>{icon}</Text>
-        <Text style={[styles.settingTitle, { color: textColor }]}>{title}</Text>
+        <Typography variant="body" weight="semibold">{title}</Typography>
       </View>
       {type === 'switch' ? (
         <Switch
@@ -43,7 +48,7 @@ export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
           thumbColor={value ? '#7C3AED' : '#f4f3f4'}
         />
       ) : (
-        <Text style={styles.chevron}>›</Text>
+        <Typography variant="h3" color="#94A3B8" style={{ fontWeight: '300' }}>›</Typography>
       )}
     </TouchableOpacity>
   );
@@ -52,9 +57,9 @@ export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack}>
-          <Text style={[styles.backText, { color: '#7C3AED' }]}>Back</Text>
+          <Typography variant="body" weight="semibold" color="#7C3AED">Back</Typography>
         </TouchableOpacity>
-        <Text style={[styles.title, { color: textColor }]}>Profile</Text>
+        <Typography variant="h3" weight="black">Profile</Typography>
         <View style={{ width: 50 }} />
       </View>
 
@@ -64,35 +69,41 @@ export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
           <View style={styles.avatarContainer}>
             <GuardianBear state="idle" size={120} />
           </View>
-          <Text style={[styles.userName, { color: textColor }]}>Oluwadare Daniel</Text>
-          <Text style={styles.userEmail}>oluwadare@lockup.app</Text>
+          <Typography variant="h2" weight="black">{user?.name || 'Guardian'}</Typography>
+          <Typography variant="caption" color="#64748B" style={{ marginTop: 4 }}>
+            {user?.name.toLowerCase().replace(' ', '.')}@lockup.app
+          </Typography>
 
           <View style={[styles.levelBadge, { backgroundColor: '#7C3AED' }]}>
-            <Text style={styles.levelText}>Level 12 Discipline Guardian</Text>
+            <Typography variant="label" color="white" weight="bold">
+              Level {user?.level || 1} Discipline Guardian
+            </Typography>
           </View>
         </View>
 
         {/* Progress Overview */}
-        <View style={[styles.statsCard, { backgroundColor: cardColor, borderColor }]}>
+        <Card style={styles.statsCard} padding={24}>
           <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: textColor }]}>2.4k</Text>
-            <Text style={styles.statLabel}>Total XP</Text>
+            <Typography variant="h3" weight="black">{user?.xp ? (user.xp > 1000 ? `${(user.xp / 1000).toFixed(1)}k` : user.xp) : 0}</Typography>
+            <Typography variant="label" weight="semibold" color="#64748B" style={{ fontSize: 10, marginTop: 4 }}>Total XP</Typography>
           </View>
           <View style={[styles.statDivider, { backgroundColor: borderColor }]} />
           <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: textColor }]}>12</Text>
-            <Text style={styles.statLabel}>Day Streak</Text>
+            <Typography variant="h3" weight="black">{user?.streak || 0}</Typography>
+            <Typography variant="label" weight="semibold" color="#64748B" style={{ fontSize: 10, marginTop: 4 }}>Day Streak</Typography>
           </View>
           <View style={[styles.statDivider, { backgroundColor: borderColor }]} />
           <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: textColor }]}>750</Text>
-            <Text style={styles.statLabel}>Score</Text>
+            <Typography variant="h3" weight="black">{user?.disciplineScore || 0}</Typography>
+            <Typography variant="label" weight="semibold" color="#64748B" style={{ fontSize: 10, marginTop: 4 }}>Score</Typography>
           </View>
-        </View>
+        </Card>
 
         {/* Settings Groups */}
         <View style={styles.settingsGroup}>
-          <Text style={styles.groupTitle}>EXPERIENCE</Text>
+          <Typography variant="label" color="#94A3B8" weight="black" style={{ letterSpacing: 1.5, marginBottom: 16, marginLeft: 4 }}>
+            EXPERIENCE
+          </Typography>
           <SettingItem
             icon="🌓"
             title="Dark Mode"
@@ -105,20 +116,23 @@ export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
         </View>
 
         <View style={styles.settingsGroup}>
-          <Text style={styles.groupTitle}>ACCOUNT</Text>
+          <Typography variant="label" color="#94A3B8" weight="black" style={{ letterSpacing: 1.5, marginBottom: 16, marginLeft: 4 }}>
+            ACCOUNT
+          </Typography>
           <SettingItem icon="👤" title="Personal Information" />
           <SettingItem icon="🛡️" title="Privacy & Security" />
           <SettingItem icon="❓" title="Help & Support" />
         </View>
 
-        <TouchableOpacity
-          style={styles.logoutButton}
+        <Button
+          title="Sign Out"
           onPress={onLogout}
-        >
-          <Text style={styles.logoutText}>Sign Out</Text>
-        </TouchableOpacity>
+          variant="danger"
+        />
 
-        <Text style={styles.versionText}>LockUp v1.0.0 (Alpha)</Text>
+        <Typography variant="caption" textAlign="center" color="#94A3B8" style={{ marginTop: 32 }}>
+          LockUp v1.0.0 (Alpha)
+        </Typography>
       </ScrollView>
     </SafeAreaView>
   );
