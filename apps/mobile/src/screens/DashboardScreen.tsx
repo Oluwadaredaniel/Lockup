@@ -126,6 +126,13 @@ export const DashboardScreen: React.FC<Props> = ({
           </View>
         </View>
 
+        {/* Guardian Message (Duolingo Style) */}
+        <Card style={styles.guardianBubble} padding={16}>
+          <Typography variant="body" weight="semibold" style={{ fontStyle: 'italic' }}>
+            "You're {user?.streak} days strong, {user?.name}. Don't let the streak reset today!"
+          </Typography>
+        </Card>
+
         {/* Central Discipline Gauge */}
         <View style={styles.gaugeContainer}>
           <Svg width={GAUGE_SIZE} height={GAUGE_SIZE} style={styles.gauge}>
@@ -165,6 +172,23 @@ export const DashboardScreen: React.FC<Props> = ({
               {disciplineScore}
             </Typography>
             <Typography variant="label" weight="bold" color="#94A3B8">Discipline Score</Typography>
+
+            {/* Daily Goal Duolingo-style */}
+            <View style={styles.dailyGoalContainer}>
+              <View style={styles.dailyGoalHeader}>
+                <Typography variant="label" weight="black" color="#7C3AED" style={{ fontSize: 10 }}>
+                  DAILY GOAL: {user?.xp ? (user.xp % user.dailyXPGoal) : 0} / {user?.dailyXPGoal} XP
+                </Typography>
+              </View>
+              <View style={styles.dailyGoalBarBg}>
+                <View
+                  style={[
+                    styles.dailyGoalBarFill,
+                    { width: `${Math.min(100, ((user?.xp || 0) % (user?.dailyXPGoal || 50)) / (user?.dailyXPGoal || 50) * 100)}%` }
+                  ]}
+                />
+              </View>
+            </View>
           </View>
         </View>
 
@@ -267,6 +291,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
+  guardianBubble: {
+    marginBottom: 32,
+    backgroundColor: 'rgba(124, 58, 237, 0.05)',
+    borderLeftWidth: 4,
+    borderLeftColor: '#7C3AED',
+    borderRadius: 16,
+  },
   shareIconButton: {
     padding: 8,
     backgroundColor: 'rgba(124, 58, 237, 0.1)',
@@ -308,6 +339,26 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  dailyGoalContainer: {
+    marginTop: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  dailyGoalHeader: {
+    marginBottom: 8,
+  },
+  dailyGoalBarBg: {
+    width: width * 0.5,
+    height: 8,
+    backgroundColor: 'rgba(124, 58, 237, 0.1)',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  dailyGoalBarFill: {
+    height: '100%',
+    backgroundColor: '#7C3AED',
+    borderRadius: 4,
   },
   statsRow: {
     flexDirection: 'row',

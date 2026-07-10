@@ -22,13 +22,17 @@ interface Props {
 
 export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
   const { theme, toggleTheme } = useTheme();
-  const { user } = useUser();
+  const { user, updateSettings } = useUser();
 
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
   const textColor = isDark ? '#FAF8FF' : '#111827';
   const cardColor = isDark ? '#0F172A' : '#FFFFFF';
   const borderColor = isDark ? '#1E293B' : '#E2E8F0';
+
+  const handleToggleNotifications = () => {
+    updateSettings({ notificationsEnabled: !user?.notificationsEnabled });
+  };
 
   const SettingItem = ({ icon, title, value, type = 'chevron', onPress }: any) => (
     <TouchableOpacity
@@ -111,8 +115,40 @@ export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
             value={isDark}
             onPress={toggleTheme}
           />
-          <SettingItem icon="🔔" title="Notifications" />
+          <SettingItem
+            icon="🔔"
+            title="Guardian Reminders"
+            type="switch"
+            value={user?.notificationsEnabled}
+            onPress={handleToggleNotifications}
+          />
           <SettingItem icon="🚫" title="Blocked Apps" />
+        </View>
+
+        <View style={styles.settingsGroup}>
+          <Typography variant="label" color="#94A3B8" weight="black" style={{ letterSpacing: 1.5, marginBottom: 16, marginLeft: 4 }}>
+            DISCIPLINE GOALS
+          </Typography>
+          <View style={styles.goalSelector}>
+            {[20, 50, 100, 200].map(goal => (
+              <TouchableOpacity
+                key={goal}
+                onPress={() => updateSettings({ dailyXPGoal: goal })}
+                style={[
+                  styles.goalChip,
+                  user?.dailyXPGoal === goal && { backgroundColor: '#7C3AED' }
+                ]}
+              >
+                <Typography
+                  variant="label"
+                  weight="bold"
+                  color={user?.dailyXPGoal === goal ? 'white' : '#64748B'}
+                >
+                  {goal} XP
+                </Typography>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         <View style={styles.settingsGroup}>
@@ -247,6 +283,21 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#94A3B8',
     fontWeight: '300',
+  },
+  goalSelector: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 8,
+  },
+  goalChip: {
+    flex: 1,
+    height: 48,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(124, 58, 237, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(124, 58, 237, 0.05)',
   },
   logoutButton: {
     marginTop: 16,
