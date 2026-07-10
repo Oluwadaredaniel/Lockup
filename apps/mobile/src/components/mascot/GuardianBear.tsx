@@ -14,6 +14,7 @@ const AnimatedG = Animated.createAnimatedComponent(G);
 export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300, animate = true }) => {
   const { theme } = useTheme();
   const breatheAnim = useRef(new Animated.Value(0)).current;
+  const visorPulseAnim = useRef(new Animated.Value(0)).current;
   const stateFadeAnim = useRef(new Animated.Value(1)).current;
   const prevState = useRef(state);
 
@@ -42,6 +43,23 @@ export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300, ani
           Animated.timing(breatheAnim, {
             toValue: 0,
             duration: 3000,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(visorPulseAnim, {
+            toValue: 1,
+            duration: 2000,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(visorPulseAnim, {
+            toValue: 0,
+            duration: 2000,
             easing: Easing.inOut(Easing.sin),
             useNativeDriver: true,
           }),
@@ -120,7 +138,12 @@ export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300, ani
             style={{
               opacity: state === 'focus'
                 ? Animated.multiply(opacity, stateFadeAnim)
-                : stateFadeAnim
+                : state === 'idle'
+                  ? Animated.multiply(visorPulseAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.3, 0.7]
+                    }), stateFadeAnim)
+                  : stateFadeAnim
             }}
           >
             {state === 'focus' && (
