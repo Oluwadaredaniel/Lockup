@@ -1,7 +1,10 @@
 import React from 'react';
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext';
 import { ShareableStreakCard } from '../components/social/ShareableStreakCard';
+import { Typography } from '../components/ui/Typography';
+import { Button } from '../components/ui/Button';
 
 interface Props {
   onBack: () => void;
@@ -9,60 +12,63 @@ interface Props {
 
 export const ShareProgressScreen: React.FC<Props> = ({ onBack }) => {
   const { theme } = useTheme();
+  const { user } = useUser();
 
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
-  const textColor = isDark ? '#FAF8FF' : '#111827';
 
-  // Mock data for the card
+  // Stats for the card
   const stats = {
-    streak: 12,
-    hoursFocused: 42.5,
-    disciplineScore: 750,
-    level: 12
+    streak: user?.streak || 0,
+    hoursFocused: 42.5, // Mocked for now
+    disciplineScore: user?.disciplineScore || 0,
+    level: user?.level || 1
   };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack}>
-          <Text style={[styles.backText, { color: '#7C3AED' }]}>Done</Text>
+          <Typography variant="body" weight="semibold" color="#7C3AED">Done</Typography>
         </TouchableOpacity>
-        <Text style={[styles.title, { color: textColor }]}>Share Progress</Text>
+        <Typography variant="h3" weight="black">Share Progress</Typography>
         <View style={{ width: 50 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.cardPreview}>
-          <ShareableStreakCard stats={stats} userName="Oluwadare" />
+          <ShareableStreakCard stats={stats} userName={user?.name || "Guardian"} />
         </View>
 
         <View style={styles.optionsContainer}>
-          <Text style={[styles.sectionTitle, { color: textColor }]}>Select Platform</Text>
+          <Typography variant="h3" weight="black" style={{ marginBottom: 20 }}>Select Platform</Typography>
 
           <View style={styles.platformGrid}>
             <TouchableOpacity style={styles.platformButton}>
               <Text style={styles.platformEmoji}>📸</Text>
-              <Text style={styles.platformLabel}>Instagram</Text>
+              <Typography variant="label" weight="bold" color="#64748B">Instagram</Typography>
             </TouchableOpacity>
             <TouchableOpacity style={styles.platformButton}>
               <Text style={styles.platformEmoji}>🐦</Text>
-              <Text style={styles.platformLabel}>X (Twitter)</Text>
+              <Typography variant="label" weight="bold" color="#64748B">X (Twitter)</Typography>
             </TouchableOpacity>
             <TouchableOpacity style={styles.platformButton}>
               <Text style={styles.platformEmoji}>💬</Text>
-              <Text style={styles.platformLabel}>WhatsApp</Text>
+              <Typography variant="label" weight="bold" color="#64748B">WhatsApp</Typography>
             </TouchableOpacity>
             <TouchableOpacity style={styles.platformButton}>
               <Text style={styles.platformEmoji}>📥</Text>
-              <Text style={styles.platformLabel}>Save Image</Text>
+              <Typography variant="label" weight="bold" color="#64748B">Save Image</Typography>
             </TouchableOpacity>
           </View>
         </View>
 
-        <TouchableOpacity style={styles.mainShareButton} activeOpacity={0.9}>
-          <Text style={styles.mainShareButtonText}>Share to Social Media</Text>
-        </TouchableOpacity>
+        <Button
+          title="Share to Social Media"
+          onPress={() => {}}
+          size="large"
+          style={{ width: '100%' }}
+        />
       </ScrollView>
     </SafeAreaView>
   );
