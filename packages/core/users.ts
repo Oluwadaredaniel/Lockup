@@ -13,6 +13,7 @@ export const createInitialProfile = (uid: string, name: string): UserProfile => 
   lastActive: new Date(),
   completedSessions: 0,
   failedSessions: 0,
+  weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
 });
 
 /**
