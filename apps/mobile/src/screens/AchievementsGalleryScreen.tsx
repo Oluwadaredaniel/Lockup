@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { AchievementBadge } from '../components/achievements/AchievementBadge';
+import { Typography } from '../components/ui/Typography';
+import { Card } from '../components/ui/Card';
 
 interface Props {
   onBack: () => void;
@@ -28,19 +30,21 @@ export const AchievementsGalleryScreen: React.FC<Props> = ({ onBack }) => {
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack}>
-          <Text style={[styles.backText, { color: '#7C3AED' }]}>Back</Text>
+          <Typography variant="body" weight="semibold" color="#7C3AED">Back</Typography>
         </TouchableOpacity>
-        <Text style={[styles.title, { color: textColor }]}>Achievements</Text>
+        <Typography variant="h3" weight="black">Achievements</Typography>
         <View style={{ width: 50 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryText}>3 / 8 ACHIEVEMENTS UNLOCKED</Text>
+        <Card style={styles.summaryCard} padding={24}>
+          <Typography variant="label" color="#94A3B8" weight="black" style={{ marginBottom: 16 }}>
+            3 / 8 ACHIEVEMENTS UNLOCKED
+          </Typography>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: '37.5%' }]} />
           </View>
-        </View>
+        </Card>
 
         <View style={styles.grid}>
           {ACHIEVEMENTS.map(item => (
