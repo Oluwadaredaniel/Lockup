@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserProfile, getLevelFromXP } from '../../../../packages/core';
+import { UserProfile, getLevelFromXP, calculateDisciplineScore } from '../../../../packages/core';
 
 interface UserContextType {
   user: UserProfile | null;
   addXP: (amount: number) => void;
+  completeSession: (xp: number) => void;
   loading: boolean;
 }
 
@@ -40,8 +41,25 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  const completeSession = (amount: number) => {
+    setUser(prev => {
+      if (!prev) return null;
+      const newXP = prev.xp + amount;
+      // For now, we'll just increment completed sessions count implicitly
+      // In a real app, this would be backed by Firestore
+      const newScore = calculateDisciplineScore(10, 1, prev.streak);
+      return {
+        ...prev,
+        xp: newXP,
+        level: getLevelFromXP(newXP),
+        disciplineScore: newScore,
+        lastActive: new Date(),
+      };
+    });
+  };
+
   return (
-    <UserContext.Provider value={{ user, addXP, loading }}>
+    <UserContext.Provider value={{ user, addXP, completeSession, loading }}>
       {children}
     </UserContext.Provider>
   );
