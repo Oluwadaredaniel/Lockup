@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { GuardianBear } from '../mascot/GuardianBear';
+import { Typography } from '../ui/Typography';
+import { Button } from '../ui/Button';
 
 interface Props {
   error?: string;
@@ -23,19 +25,19 @@ export const ErrorState: React.FC<Props> = ({
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={styles.content}>
         <GuardianBear state="alert" size={200} />
-        <Text style={[styles.title, { color: textColor }]}>Unforeseen Interruption</Text>
-        <Text style={styles.description}>{error}</Text>
+        <Typography variant="h2" weight="black" textAlign="center" style={{ marginTop: 32 }}>
+          Unforeseen Interruption
+        </Typography>
+        <Typography variant="body" color="#64748B" textAlign="center" style={{ marginTop: 12 }}>
+          {error}
+        </Typography>
 
         <View style={styles.buttonGroup}>
           {onRetry && (
-            <TouchableOpacity style={styles.primaryButton} onPress={onRetry}>
-              <Text style={styles.primaryButtonText}>Try Again</Text>
-            </TouchableOpacity>
+            <Button title="Try Again" onPress={onRetry} />
           )}
           {onBack && (
-            <TouchableOpacity style={styles.secondaryButton} onPress={onBack}>
-              <Text style={styles.secondaryButtonText}>Go Back</Text>
-            </TouchableOpacity>
+            <Button title="Go Back" onPress={onBack} variant="secondary" />
           )}
         </View>
       </View>
