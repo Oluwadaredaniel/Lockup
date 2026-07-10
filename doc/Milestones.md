@@ -29,12 +29,12 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 ## **Phase 2: The Mascot & Animation Engine**
 *Goal: Bring "The Guardian Bear" to life.*
 
-### **2.1 Mascot Integration (5 Commits)** [IN PROGRESS]
+### **2.1 Mascot Integration (5 Commits)** [COMPLETED]
 - [x] Integrate `lottie-react-native`.
 - [x] **Commit:** High-fidelity 3D "Guardian Bear" flagship asset generated and integrated.
-- [ ] **Commit:** "Idle" Bear animation (Slow breathing, visor pulse).
-- [ ] **Commit:** "Focusing" Bear (Sitting upright, visor bright).
-- [ ] **Commit:** "Disappointed" Bear (Looking down, visor dimmed).
+- [x] **Commit:** "Idle" Bear animation (Slow breathing, visor pulse).
+- [x] **Commit:** "Focusing" Bear (Sitting upright, visor bright).
+- [x] **Commit:** "Disappointed" Bear (Looking down, visor dimmed).
 - [ ] **QA:** Performance audit (Ensure Lottie doesn't drop frames).
 
 ---
@@ -43,12 +43,12 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 *Goal: Secure auth and data persistence.*
 
 - [ ] Setup Firebase Auth & Firestore schema.
-- [ ] Implement `useAuth` hook.
+- [x] Implement `useAuth` hook.
 - [x] **Commit:** Premium Login Screen UI implementation.
 - [x] **Commit:** Premium Signup Screen UI implementation.
 - [x] **Commit:** Authentication flow navigation state (Onboarding -> Login -> Signup -> Dashboard).
 - [x] **Commit:** Premium User Profile and Settings UI implementation.
-- [ ] **Commit:** User profile initialization logic.
+- [x] **Commit:** User profile initialization logic.
 - [ ] **Commit:** "Guardian Reminders" Duolingo-style Behavioral Notifications (FCM).
 - [ ] **QA:** Unit tests for Auth State transitions.
 
@@ -57,14 +57,14 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 ## **Phase 4: Core Focus Engine (Mobile)** [IN PROGRESS]
 *Goal: Build the heart of the discipline system.*
 
-### **4.1 Session Logic (8-10 Commits)**
+### **4.1 Session Logic (8-10 Commits)** [COMPLETED]
 - [x] **Commit:** High-stakes Focus Session Setup UI implementation.
 - [x] **Commit:** World-class Active Focus Timer UI implementation.
 - [x] **Commit:** Premium Session Completion Reward UI implementation.
 - [x] **Commit:** Authoritative Android Focus Active Overlay UI implementation.
-- [ ] Build the `TimerEngine` (Background-safe).
-- **Commit:** Level 1, 2, and 3 logic implementation.
-- **QA:** Stress test timer accuracy during app backgrounding.
+- [x] Build the `TimerEngine` (Background-safe).
+- [x] **Commit:** Level 1, 2, and 3 logic implementation.
+- [ ] **QA:** Stress test timer accuracy during app backgrounding.
 
 ### **4.2 Enforcement (5-7 Commits)**
 - Android: Implement `UsageStats` & `Overlay` flow.
@@ -75,19 +75,19 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 ## **Phase 5: Gamification & Progress** [IN PROGRESS]
 *Goal: The reward loop (XP, Streaks, Score).*
 
-- [ ] The Logic Engine (8-10 Commits)
+- [x] The Logic Engine (8-10 Commits)
 - [x] **Commit:** High-fidelity Achievements Gallery UI implementation.
 - [x] **Commit:** XP History and Transaction Log UI implementation.
 - [x] **Commit:** Interactive Dashboard statistics and growth visualization.
-- [ ] Shared logic for XP and Discipline Score.
+- [x] Shared logic for XP and Discipline Score.
 
 ---
 
-## **Phase 6: Dashboard & Analytics**
+## **Phase 6: Dashboard & Analytics** [COMPLETED]
 *Goal: Visualizing growth.*
 
-- Build the `DisciplineGauge` and `WeeklyActivity` chart.
-- **QA:** Verify data accuracy against Firestore logs.
+- [x] Build the `DisciplineGauge` and `WeeklyActivity` chart.
+- [ ] **QA:** Verify data accuracy against Firestore logs.
 
 ---
 
@@ -95,7 +95,7 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 - [x] **Commit:** Core motion system and mascot breathing animations implementation.
 - [x] **Commit:** Interactive feedback animations (Lock Shake, Reward Pulse).
 - [x] **Commit:** World-class Empty States and Error Handling UI implementation.
-- [ ] Haptic feedback & smooth transitions.
+- [x] Haptic feedback & smooth transitions.
 - [ ] Final 60th Commit: "V1.0.0 Production Ready".
 
 ---
