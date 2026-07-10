@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { View, Text, FlatList, Dimensions, TouchableOpacity, SafeAreaView, StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { FocusIllustration, LockIllustration, RewardIllustration } from '../components/illustrations/OnboardingIllustrations';
+import { Typography } from '../components/ui/Typography';
+import { Button } from '../components/ui/Button';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,7 +29,7 @@ const SLIDES = [
 ];
 
 export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => {
-  const { theme, colors } = useTheme();
+  const { theme } = useTheme();
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
@@ -42,8 +44,6 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
   };
 
   const bgColor = theme === 'light' ? '#FAF8FF' : '#0F172A';
-  const textColor = theme === 'light' ? '#111827' : '#FAF8FF';
-  const mutedColor = theme === 'light' ? '#6B7280' : '#C4B5FD';
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
@@ -63,8 +63,12 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
               <item.Illustration size={300} />
             </View>
             <View style={styles.textContainer}>
-              <Text style={[styles.title, { color: textColor }]}>{item.title}</Text>
-              <Text style={[styles.description, { color: mutedColor }]}>{item.description}</Text>
+              <Typography variant="h2" weight="black" textAlign="center" style={{ marginBottom: 16 }}>
+                {item.title}
+              </Typography>
+              <Typography variant="body" color="#64748B" textAlign="center" style={{ lineHeight: 24 }}>
+                {item.description}
+              </Typography>
             </View>
           </View>
         )}
@@ -84,13 +88,10 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
           ))}
         </View>
 
-        <TouchableOpacity
+        <Button
+          title={isLastSlide ? 'Get Started' : 'Next'}
           onPress={handleNext}
-          activeOpacity={0.8}
-          style={[styles.button, { backgroundColor: '#7C3AED' }]}
-        >
-          <Text style={styles.buttonText}>{isLastSlide ? 'Get Started' : 'Next'}</Text>
-        </TouchableOpacity>
+        />
       </View>
     </SafeAreaView>
   );
