@@ -24,6 +24,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       disciplineScore: 850,
       streak: 5,
       lastActive: new Date(),
+      completedSessions: 12,
+      failedSessions: 2,
     };
     setUser(mockUser);
     setLoading(false);
@@ -45,13 +47,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(prev => {
       if (!prev) return null;
       const newXP = prev.xp + amount;
-      // For now, we'll just increment completed sessions count implicitly
-      // In a real app, this would be backed by Firestore
-      const newScore = calculateDisciplineScore(10, 1, prev.streak);
+      const newCompleted = prev.completedSessions + 1;
+      const newScore = calculateDisciplineScore(newCompleted, prev.failedSessions, prev.streak);
       return {
         ...prev,
         xp: newXP,
         level: getLevelFromXP(newXP),
+        completedSessions: newCompleted,
         disciplineScore: newScore,
         lastActive: new Date(),
       };
