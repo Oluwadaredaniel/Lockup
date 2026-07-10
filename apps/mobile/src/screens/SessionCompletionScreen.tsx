@@ -58,12 +58,6 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
     ]).start();
   }, []);
 
-  const xpEarned = calculateSessionXP(
-    sessionData.duration,
-    sessionData.selectedLockLevel,
-    'completed' as any // Use string for now as it's mocked
-  );
-
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
   const textColor = isDark ? '#FAF8FF' : '#111827';
