@@ -29,7 +29,7 @@ interface Props {
 
 export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContinue }) => {
   const { theme } = useTheme();
-  const { user, addXP } = useUser();
+  const { user, completeSession } = useUser();
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
@@ -41,7 +41,7 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
 
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    addXP(xpEarned);
+    completeSession(xpEarned);
 
     Animated.parallel([
       Animated.spring(scaleAnim, {
