@@ -11,7 +11,9 @@ import {
   ScrollView
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../hooks/useAuth';
 import { GuardianBear } from '../components/mascot/GuardianBear';
+import { ActivityIndicator } from 'react-native';
 
 interface Props {
   onLogin: () => void;
@@ -20,10 +22,20 @@ interface Props {
 
 export const SignupScreen: React.FC<Props> = ({ onLogin, onSignUpComplete }) => {
   const { theme } = useTheme();
+  const { signup, loading } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const handleSignup = async () => {
+    if (email && password) {
+       await signup(email, password);
+       // App.tsx will handle the state change
+    } else {
+       onSignUpComplete();
+    }
+  };
 
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
@@ -95,11 +107,16 @@ export const SignupScreen: React.FC<Props> = ({ onLogin, onSignUpComplete }) => 
             </View>
 
             <TouchableOpacity
-              style={styles.signUpButton}
-              onPress={onSignUpComplete}
+              style={[styles.signUpButton, loading && { opacity: 0.7 }]}
+              onPress={handleSignup}
               activeOpacity={0.8}
+              disabled={loading}
             >
-              <Text style={styles.signUpButtonText}>Create Account</Text>
+              {loading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={styles.signUpButtonText}>Create Account</Text>
+              )}
             </TouchableOpacity>
 
             <View style={styles.termsContainer}>
