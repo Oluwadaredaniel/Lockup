@@ -26,6 +26,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       lastActive: new Date(),
       completedSessions: 12,
       failedSessions: 2,
+      weeklyActivity: [40, 70, 45, 90, 65, 30, 80],
     };
     setUser(mockUser);
     setLoading(false);
@@ -49,12 +50,18 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const newXP = prev.xp + amount;
       const newCompleted = prev.completedSessions + 1;
       const newScore = calculateDisciplineScore(newCompleted, prev.failedSessions, prev.streak);
+
+      const todayIndex = (new Date().getDay() + 6) % 7; // Mon is 0
+      const newActivity = [...prev.weeklyActivity];
+      newActivity[todayIndex] = Math.min(100, newActivity[todayIndex] + 10);
+
       return {
         ...prev,
         xp: newXP,
         level: getLevelFromXP(newXP),
         completedSessions: newCompleted,
         disciplineScore: newScore,
+        weeklyActivity: newActivity,
         lastActive: new Date(),
       };
     });
