@@ -8,6 +8,7 @@ export * from './theme';
 export * from './firebase.config';
 export * from './sessions';
 export * from './streaks';
+export * from './users';
 
 export interface UserProfile {
   uid: string;
