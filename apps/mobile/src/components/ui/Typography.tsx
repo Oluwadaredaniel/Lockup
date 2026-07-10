@@ -6,12 +6,14 @@ interface Props extends TextProps {
   variant?: 'h1' | 'h2' | 'h3' | 'body' | 'caption' | 'label';
   weight?: 'normal' | 'semibold' | 'bold' | 'black';
   color?: string;
+  textAlign?: 'left' | 'center' | 'right';
 }
 
 export const Typography: React.FC<Props> = ({
   variant = 'body',
   weight = 'normal',
   color,
+  textAlign = 'left',
   style,
   children,
   ...props
@@ -47,7 +49,7 @@ export const Typography: React.FC<Props> = ({
       style={[
         getVariantStyle(),
         getWeightStyle(),
-        { color: color || (variant === 'caption' ? mutedColor : defaultColor) },
+        { color: color || (variant === 'caption' ? mutedColor : defaultColor), textAlign },
         style
       ]}
       {...props}

@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
+import { Typography } from '../components/ui/Typography';
+import { Button } from '../components/ui/Button';
 
 const { width } = Dimensions.get('window');
 
@@ -33,29 +35,27 @@ export const FocusActiveOverlayScreen: React.FC<Props> = ({ onReturnToApp, appNa
         </View>
 
         <View style={styles.textContainer}>
-          <Text style={[styles.title, { color: textColor }]}>Focus Session Active</Text>
-          <Text style={[styles.subtitle, { color: secondaryTextColor }]}>
+          <Typography variant="h1" weight="black" textAlign="center">Focus Session Active</Typography>
+          <Typography variant="body" color={secondaryTextColor} textAlign="center" style={{ marginTop: 16, paddingHorizontal: 20 }}>
             The Sentinel is guarding your time. Access to <Text style={styles.appName}>{appName}</Text> is restricted until your session ends.
-          </Text>
+          </Typography>
         </View>
 
         <View style={styles.timerPreview}>
-          <Text style={styles.timerLabel}>TIME REMAINING</Text>
-          <Text style={[styles.timerValue, { color: textColor }]}>42:18</Text>
+          <Typography variant="label" color="#94A3B8">TIME REMAINING</Typography>
+          <Typography variant="h1" weight="black" style={{ fontSize: 48 }}>42:18</Typography>
         </View>
 
         <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            activeOpacity={0.9}
+          <Button
+            title="Return to LockUp"
             onPress={onReturnToApp}
-          >
-            <Text style={styles.primaryButtonText}>Return to LockUp</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.disclaimer}>
+            size="large"
+            style={{ width: '100%' }}
+          />
+          <Typography variant="caption" style={{ fontStyle: 'italic' }}>
             Discipline is built through resistance.
-          </Text>
+          </Typography>
         </View>
       </View>
     </SafeAreaView>
