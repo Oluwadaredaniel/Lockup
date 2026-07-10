@@ -11,6 +11,8 @@ export const createInitialProfile = (uid: string, name: string): UserProfile => 
   disciplineScore: 500, // Start neutral
   streak: 0,
   lastActive: new Date(),
+  completedSessions: 0,
+  failedSessions: 0,
 });
 
 /**
