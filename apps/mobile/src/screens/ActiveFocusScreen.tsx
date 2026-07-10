@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
-import { LockLevel, formatDuration } from '../../../../packages/core';
+import { useFocusSession } from '../hooks/useFocusSession';
+import { LockLevel, formatDuration, SessionStatus } from '../../../../packages/core';
 import Svg, { Circle } from 'react-native-svg';
 
 import * as Haptics from 'expo-haptics';
@@ -36,7 +37,7 @@ interface Props {
 
 export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, onAbandon, onSimulateDistraction }) => {
   const { theme } = useTheme();
-  const [secondsRemaining, setSecondsRemaining] = useState(sessionData.duration * 60);
+  const { secondsRemaining, status, abandon, complete } = useFocusSession(sessionData.duration);
   const totalSeconds = sessionData.duration * 60;
 
   const shakeAnim = useRef(new Animated.Value(0)).current;
@@ -49,17 +50,12 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
   const textColor = isDark ? '#FAF8FF' : '#111827';
 
   useEffect(() => {
-    if (secondsRemaining <= 0) {
+    if (status === SessionStatus.Completed) {
       onComplete();
-      return;
+    } else if (status === SessionStatus.Abandoned) {
+      onAbandon();
     }
-
-    const interval = setInterval(() => {
-      setSecondsRemaining(prev => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [secondsRemaining]);
+  }, [status]);
 
   const triggerShake = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -73,14 +69,14 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
 
   const handleExit = () => {
     if (sessionData.selectedLockLevel === LockLevel.Flexible) {
-      onAbandon();
+      abandon();
     } else if (sessionData.selectedLockLevel === LockLevel.Commitment) {
       Alert.alert(
         "Break Commitment?",
         "If you leave now, you will lose XP and your streak protection will be at risk.",
         [
           { text: "Stay Focused", style: "cancel" },
-          { text: "Abandon", style: "destructive", onPress: onAbandon }
+          { text: "Abandon", style: "destructive", onPress: abandon }
         ]
       );
     } else {
