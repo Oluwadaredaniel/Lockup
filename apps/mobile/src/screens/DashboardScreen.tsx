@@ -11,6 +11,7 @@ import {
   Easing
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
 import { EmptyState } from '../components/feedback/EmptyState';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
@@ -37,12 +38,13 @@ export const DashboardScreen: React.FC<Props> = ({
   onViewProfile
 }) => {
   const { theme } = useTheme();
+  const { user } = useUser();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const gaugeAnim = useRef(new Animated.Value(0)).current;
 
-  const hasData = true; // Toggle this for testing empty state
-  const disciplineScore = hasData ? 750 : 0;
+  const hasData = !!user;
+  const disciplineScore = user?.disciplineScore || 0;
   const progress = disciplineScore / 1000;
 
   const barAnims = useRef([40, 70, 45, 90, 65, 30, 80].map(() => new Animated.Value(0))).current;
@@ -108,14 +110,14 @@ export const DashboardScreen: React.FC<Props> = ({
         <View style={styles.header}>
           <TouchableOpacity onPress={onViewProfile}>
             <Text style={styles.greeting}>Good Morning,</Text>
-            <Text style={[styles.name, { color: textColor }]}>Guardian</Text>
+            <Text style={[styles.name, { color: textColor }]}>{user?.name || 'Guardian'}</Text>
           </TouchableOpacity>
           <View style={styles.headerActions}>
             <TouchableOpacity onPress={onShare} style={styles.shareIconButton}>
               <Text style={styles.shareIcon}>🔗</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.levelBadge, { backgroundColor: '#7C3AED' }]}>
-              <Text style={styles.levelText}>Level 12</Text>
+              <Text style={styles.levelText}>Level {user?.level || 1}</Text>
             </TouchableOpacity>
           </View>
         </View>
