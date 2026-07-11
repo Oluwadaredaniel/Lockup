@@ -1,5 +1,21 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  ViewStyle,
+  TextStyle
+} from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming
+} from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 interface Props {
   onPress: () => void;
@@ -22,6 +38,28 @@ export const Button: React.FC<Props> = ({
   style,
   textStyle,
 }) => {
+  const scale = useSharedValue(1);
+  const opacity = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.96, { damping: 15 });
+    opacity.value = withTiming(0.9, { duration: 100 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1);
+    opacity.value = withTiming(1, { duration: 100 });
+  };
+
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
+  };
   const getVariantStyle = () => {
     switch (variant) {
       case 'secondary': return styles.secondary;
@@ -46,17 +84,20 @@ export const Button: React.FC<Props> = ({
   };
 
   return (
-    <TouchableOpacity
-      onPress={onPress}
+    <AnimatedTouchable
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       disabled={disabled || loading}
       style={[
         styles.base,
         getVariantStyle(),
         getSizeStyle(),
         (disabled || loading) && styles.disabled,
+        animatedStyle,
         style,
       ]}
-      activeOpacity={0.8}
+      activeOpacity={1}
     >
       {loading ? (
         <ActivityIndicator color={getTextColor()} />
@@ -65,7 +106,7 @@ export const Button: React.FC<Props> = ({
           {title}
         </Text>
       )}
-    </TouchableOpacity>
+    </AnimatedTouchable>
   );
 };
 
