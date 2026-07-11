@@ -27,14 +27,11 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 ---
 
 ## **Phase 2: The Mascot & Animation Engine**
-*Goal: Bring "The Guardian Bear" to life.*
+*Goal: Bring "The Guardian Bear" to life using Duolingo-style reactive animations.*
 
-### **2.1 Mascot Integration (5 Commits)** [COMPLETED]
 - [x] Integrate `lottie-react-native`.
-- [x] **Commit:** High-fidelity 3D "Guardian Bear" flagship asset generated and integrated.
-- [x] **Commit:** "Idle" Bear animation (Slow breathing, visor pulse).
-- [x] **Commit:** "Focusing" Bear (Sitting upright, visor bright).
-- [x] **Commit:** "Disappointed" Bear (Looking down, visor dimmed).
+- [ ] **Commit:** Implement "Emotional State Matrix" for the Bear (Focus, Alert, Disappointed).
+- [ ] **Commit:** Implement "Tactile Squish" and "Visor Pulse" sensory feedback.
 - [ ] **QA:** Performance audit (Ensure Lottie doesn't drop frames).
 
 ---
@@ -59,16 +56,18 @@ This roadmap is designed for a high-commit frequency (60+ commits) with a focus 
 
 ### **4.1 Session Logic (8-10 Commits)** [COMPLETED]
 - [x] **Commit:** High-stakes Focus Session Setup UI implementation.
-- [x] **Commit:** World-class Active Focus Timer UI implementation.
+- [x] **Commit:** World-class Active Focus Timer UI implementation with **Emergency Override logic**.
 - [x] **Commit:** Premium Session Completion Reward UI implementation.
-- [x] **Commit:** Authoritative Android Focus Active Overlay UI implementation.
+- [x] **Commit:** Authoritative Android Focus Active Overlay UI implementation (The Shield).
 - [x] Build the `TimerEngine` (Background-safe).
 - [x] **Commit:** Level 1, 2, and 3 logic implementation.
 - [ ] **QA:** Stress test timer accuracy during app backgrounding.
 
-### **4.2 Enforcement (5-7 Commits)**
-- Android: Implement `UsageStats` & `Overlay` flow.
-- **QA:** Manual testing on multiple Android versions (API 24-34).
+### **4.2 Enforcement (The Android Shield)**
+- [ ] Implement `AccessibilityService` native module for app blocking.
+- [ ] Implement `SystemAlertWindow` overlay logic.
+- [ ] Implement `NTP` Anti-cheat sync.
+- [ ] **QA:** Manual testing on multiple Android versions (API 24-34).
 
 ---
 

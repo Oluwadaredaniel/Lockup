@@ -12,6 +12,8 @@ export enum SessionStatus {
   Abandoned = 'abandoned',
 }
 
+export type FocusEnvironment = 'none' | 'rain' | 'lofi' | 'coffee' | 'library' | 'forest' | 'space';
+
 export interface FocusSession {
   id: string;
   userId: string;
@@ -22,6 +24,7 @@ export interface FocusSession {
   startedAt?: Date;
   endedAt?: Date;
   blockedApps: string[];
+  environment: FocusEnvironment;
 }
 
 export interface XPTransaction {

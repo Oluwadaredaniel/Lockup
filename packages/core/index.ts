@@ -34,10 +34,12 @@ export interface UserProfile {
   notificationsEnabled: boolean;
   achievements: Achievement[];
   gems: number; // Currency for shop
+  probationUntil?: Date; // For Discipline Probation
 }
 
 /**
  * Calculates the discipline score based on session completion and streaks.
+ * Now using a weighted logic as per PRD V2.
  */
 export const calculateDisciplineScore = (
   completedSessions: number,
@@ -45,12 +47,42 @@ export const calculateDisciplineScore = (
   streakDays: number
 ): number => {
   const total = completedSessions + failedSessions;
-  if (total === 0) return 0;
+  if (total === 0) return 500; // Neutral start
 
-  const baseScore = (completedSessions / total) * 800;
-  const streakBonus = Math.min(streakDays * 10, 200);
+  // Base completion rate (0-600 points)
+  const completionRate = completedSessions / total;
+  const baseScore = completionRate * 600;
 
-  return Math.min(Math.round(baseScore + streakBonus), 1000);
+  // Streak consistency (0-300 points)
+  // Reaching a 30-day streak maxes this out
+  const streakBonus = Math.min((streakDays / 30) * 300, 300);
+
+  // Volume / Intensity (0-100 points)
+  const volumeBonus = Math.min((completedSessions / 100) * 100, 100);
+
+  return Math.min(Math.round(baseScore + streakBonus + volumeBonus), 1000);
+};
+
+/**
+ * Returns a human-readable status for the discipline score
+ */
+export const getDisciplineStatus = (score: number): string => {
+  if (score >= 900) return 'ELITE';
+  if (score >= 750) return 'UNSTOPPABLE';
+  if (score >= 500) return 'CONSISTENT';
+  if (score >= 250) return 'STRUGGLING';
+  return 'DISRUPTED';
+};
+
+/**
+ * Returns the color for the discipline status
+ */
+export const getDisciplineStatusColor = (score: number): string => {
+  if (score >= 900) return '#7C3AED'; // Plum
+  if (score >= 750) return '#10B981'; // Success Green
+  if (score >= 500) return '#3B82F6'; // Info Blue
+  if (score >= 250) return '#F59E0B'; // Warning Orange
+  return '#EF4444'; // Error Red
 };
 
 export const XP_PER_LEVEL = 500;

@@ -69,8 +69,9 @@ XP measures **effort and consistency over time**.
 
 | Action | Penalty |
 |--------|--------|
-| Session Abandoned (Level 2) | -10 XP |
-| Session Abandoned (Level 3) | -30 XP |
+| Session Abandoned (Level 2) | -20 XP |
+| Session Abandoned (Level 3) | -100 XP |
+| Emergency Override Triggered | -150 XP + 3-day Probation |
 | Breaking Streak | -100 XP |
 | Repeated Failure Pattern | Scaling penalty |
 
@@ -147,13 +148,15 @@ Streaks create:
 
 ### 6.3 Calculation Factors
 
-Discipline Score is calculated from:
+Discipline Score (DS) is calculated using a **30-Day Weighted Rolling Average**:
 
-- Session completion rate (40%)
-- Streak consistency (25%)
-- Focus hours (15%)
-- XP accumulation rate (10%)
-- Failure rate (10%)
+- **70% Weight:** Recent behavior (last 7 days).
+- **30% Weight:** Historical consistency (previous 23 days).
+
+Components:
+- **Session Completion Rate (50%):** Weighted by Lock Level (Level 3 completions count 2x).
+- **Streak Consistency (30%):** Measures daily commitment adherence.
+- **Volume (20%):** Actual hours focused vs. user-defined baseline.
 
 ---
 
@@ -230,9 +233,12 @@ Introduce consequence awareness
 
 ### 8.3 Level 3 — Strict Mode
 
-- Cannot exit session
-- Emergency override required
-- Strong behavioral commitment
+- Cannot exit session without **180-second cool-down**.
+- Emergency override results in **-150 XP and 3-day Discipline Probation**.
+- Strict behavioral commitment.
+
+**Discipline Probation:**
+During probation, XP earnings are halved and streak progression is frozen. This creates a "consequence tail" that discourages tactical quitting.
 
 Purpose:
 Force discipline execution
@@ -270,37 +276,34 @@ They represent:
 
 ---
 
-## 10. BEHAVIOR DESIGN PRINCIPLES
+## 10. The Sensory & Emotional Layer (Duolingo Principles)
+
+LockUp is not a static tool; it is an emotional interface for discipline.
+
+### 10.1 Sensory Feedback
+- **Tactile Squish:** All primary buttons use a 3D-press animation.
+- **Visor Pulse:** During sessions, the Guardian Bear's visor pulses in a 4-7-8 breathing rhythm to induce calm.
+- **Haptic Tocks:** Level 3 sessions provide a subtle haptic pulse every 5 minutes to confirm active protection.
+
+### 10.2 Mascot State Matrix
+The Guardian Bear reacts to user behavior:
+- **Focusing:** Visor bright, sitting upright.
+- **Distraction Blocked:** Alert stance, visor flashes warning red.
+- **Session Success:** Celebrating, visor golden.
+- **Session Abandoned:** Looking away, visor dimmed (induces "Disappointment" emotion).
+
+### 10.3 Behavioral Notifications
+Notifications must be contextual and personalized:
+- **Identity-based:** "A Level 4 Disciplined User doesn't miss Monday sessions."
+- **Predictive:** "The Bear noticed your energy usually peaks now. Start a session?"
+- **Loss Aversion:** "You're 2 hours away from a Perfect Week. Don't let it slip."
 
 ---
 
-### 10.1 Loss Aversion
-
-Loss is more impactful than gain.
-
-System prioritizes:
-
-- Protecting streaks
-- Avoiding penalties
-- Maintaining discipline identity
-
----
-
-### 10.2 Identity Formation
-
-Users should think:
-
-> “I am a disciplined person”
-
-Not:
-
-> “I am trying to be disciplined”
-
----
-
-### 10.3 Consistency > Intensity
-
-Small daily wins > occasional long sessions
+## 11. Discipline Probation (The Recovery Loop)
+Failure is penalized but never terminal.
+- **The Restoration Quest:** After a Level 3 failure, users are offered a low-friction "Reset Session" to halt Discipline Score decay.
+- **Visual Recovery:** The score gauge shows the "lost points" in red, slowly fading back to normal as the user completes probation.
 
 ---
 

@@ -18,6 +18,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/feedback/EmptyState';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
+import { getDisciplineStatus, getDisciplineStatusColor } from '../../../../packages/core';
 
 const { width } = Dimensions.get('window');
 const GAUGE_SIZE = width * 0.7;
@@ -173,7 +174,15 @@ export const DashboardScreen: React.FC<Props> = ({
 
           <View style={styles.scoreContent}>
             <GuardianBear state="idle" size={120} />
-            <Typography variant="h1" weight="black" style={{ marginTop: -10, fontSize: 48 }}>
+            <View style={[
+              styles.statusBadge,
+              { backgroundColor: getDisciplineStatusColor(disciplineScore) }
+            ]}>
+              <Typography variant="label" color="white" weight="black">
+                {getDisciplineStatus(disciplineScore)}
+              </Typography>
+            </View>
+            <Typography variant="h1" weight="black" style={{ marginTop: 0, fontSize: 56 }}>
               {disciplineScore}
             </Typography>
             <Typography variant="label" weight="bold" color="#94A3B8">Discipline Score</Typography>
@@ -371,6 +380,12 @@ const styles = StyleSheet.create({
   scoreContent: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginBottom: 4,
   },
   scoreValue: {
     fontSize: 48,

@@ -120,6 +120,8 @@ Handles:
 - Firebase calls
 - API interactions
 - Data persistence
+- **Ambient Audio Service:** Manages seamless looping of focus environment sounds.
+- **Enforcement Service:** Accessibility and Overlay management (Android Shield).
 - External integrations
 
 ---

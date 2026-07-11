@@ -164,37 +164,26 @@ Displays:
 ---
 
 ### 6.2 Focus Session Setup Screen
-
 User configures:
-
-- Session name
-- Duration
-- Apps to block
+- Session name & Duration
+- Apps to block & Environment sound (Rain, Lo-Fi, etc.)
 - Lock level
 
 Primary CTA:
-
-> Start Session
+> "Hold to Commit" (Pre-commitment Ritual)
 
 ---
 
-### 6.3 Active Focus Session Screen
-
-Most important screen in app.
-
+### 6.3 Active Focus Session Screen (Guardian Mode)
+The "Freedom" Layer: Minimalist and distraction-free.
 Displays:
-
-- Countdown timer
-- Session status
-- Lock level indicator
-- Minimal UI mode
+- Countdown timer (Secondary focus)
+- Guardian Bear in "Meditation" state (Visor pulsing slowly)
+- Minimalist playback controls for Focus Environment sounds
 - Exit restrictions (based on level)
 
 Behavior:
-
-- Prevent distraction
-- Maintain focus state
-- Lock navigation if needed
+- **Invisibility Principle:** The UI recedes to the background to maximize deep work.
 
 ---
 
