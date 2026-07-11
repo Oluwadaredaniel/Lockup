@@ -34,6 +34,7 @@ interface Props {
   onViewProfile: () => void;
   onViewShop: () => void;
   onViewHistory: () => void;
+  onViewScheduling: () => void;
 }
 
 export const DashboardScreen: React.FC<Props> = ({
@@ -43,7 +44,8 @@ export const DashboardScreen: React.FC<Props> = ({
   onViewXP,
   onViewProfile,
   onViewShop,
-  onViewHistory
+  onViewHistory,
+  onViewScheduling
 }) => {
   const { theme } = useTheme();
   const { user } = useUser();
@@ -238,14 +240,12 @@ export const DashboardScreen: React.FC<Props> = ({
           <Card
             style={styles.statCard}
             padding={16}
-            onPress={onViewXP}
+            onPress={onViewScheduling}
           >
-            <Text style={styles.statEmoji}>⭐</Text>
+            <Text style={styles.statEmoji}>🛡️</Text>
             <View>
-              <Typography variant="body" weight="bold">
-                {user?.xp ? (user.xp > 1000 ? `${(user.xp / 1000).toFixed(1)}k` : user.xp) : 0}
-              </Typography>
-              <Typography variant="caption" weight="semibold" color="#64748B">Total XP</Typography>
+              <Typography variant="body" weight="bold">2 Active</Typography>
+              <Typography variant="caption" weight="semibold" color="#64748B">Shielded Slots</Typography>
             </View>
           </Card>
         </View>

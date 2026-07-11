@@ -42,3 +42,14 @@ export interface Streak {
   lastActiveDate: Date;
   shieldCount: number;
 }
+
+export interface ShieldedSlot {
+  id: string;
+  name: string;
+  dayOfWeek: number; // 0-6
+  startTime: string; // "HH:mm"
+  duration: number; // minutes
+  lockLevel: LockLevel;
+  environment: FocusEnvironment;
+  enabled: boolean;
+}
