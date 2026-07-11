@@ -59,6 +59,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (currentUser.probationUntil && new Date(currentUser.probationUntil) <= today) {
       UserService.updateProfile(currentUser.uid, { probationUntil: undefined });
+      NotificationService.sendInstantNotification(
+        "Probation Ended! ✨",
+        "Your discipline honor has been restored. XP earnings are back to 100%."
+      );
     }
 
     const diffTime = Math.abs(today.getTime() - lastActive.getTime());
@@ -121,7 +125,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const newScore = calculateDisciplineScore(newCompleted, user.failedSessions, newStreak);
     const todayIndex = (new Date().getDay() + 6) % 7;
     const newActivity = [...user.weeklyActivity];
-    newActivity[todayIndex] = Math.min(100, newActivity[todayIndex] + 10);
+    // Add hours focused to the heatmap (duration in minutes converted to height)
+    newActivity[todayIndex] = Math.min(100, newActivity[todayIndex] + (30)); // Mock 30 points per session
 
     UserService.updateProfile(user.uid, {
       xp: newXP,
@@ -136,6 +141,15 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     XPService.logTransaction({ userId: user.uid, amount: finalXP, reason: 'Focus Session Completed', createdAt: new Date() });
     AchievementService.checkAchievements({ ...user, xp: newXP, completedSessions: newCompleted, disciplineScore: newScore, streak: newStreak });
+
+    // Daily Goal Check
+    const oldProgress = user.xp % (user.dailyXPGoal || 50);
+    if (oldProgress + finalXP >= (user.dailyXPGoal || 50)) {
+      NotificationService.sendInstantNotification(
+        "Daily Goal Achieved! 🏆",
+        "The Guardian Bear is impressed by your consistency."
+      );
+    }
   };
 
   const failSession = (lockLevel: LockLevel) => {
