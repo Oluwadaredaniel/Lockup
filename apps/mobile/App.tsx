@@ -17,9 +17,10 @@ import { FocusActiveOverlayScreen } from './src/screens/FocusActiveOverlayScreen
 import { ProfileScreen } from './src/screens/ProfileScreen';
 import { SplashScreen } from './src/screens/SplashScreen';
 import { ShopScreen } from './src/screens/ShopScreen';
+import { SessionHistoryScreen } from './src/screens/SessionHistoryScreen';
 import { ErrorState } from './src/components/feedback/ErrorState';
 
-type AppState = 'splash' | 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share' | 'achievements' | 'xp_history' | 'focus_overlay' | 'profile' | 'shop' | 'error';
+type AppState = 'splash' | 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share' | 'achievements' | 'xp_history' | 'focus_overlay' | 'profile' | 'shop' | 'history' | 'error';
 
 const Main = () => {
   const { theme } = useTheme();
@@ -77,6 +78,7 @@ const Main = () => {
             onViewXP={() => setAppState('xp_history')}
             onViewProfile={() => setAppState('profile')}
             onViewShop={() => setAppState('shop')}
+            onViewHistory={() => setAppState('history')}
           />
         );
       case 'focus_setup':
@@ -113,6 +115,8 @@ const Main = () => {
         return <XPHistoryScreen onBack={() => setAppState('dashboard')} />;
       case 'shop':
         return <ShopScreen onBack={() => setAppState('dashboard')} />;
+      case 'history':
+        return <SessionHistoryScreen onBack={() => setAppState('dashboard')} />;
       case 'focus_overlay':
         return <FocusActiveOverlayScreen onReturnToApp={() => setAppState('active_focus')} appName="Instagram" />;
       case 'profile':

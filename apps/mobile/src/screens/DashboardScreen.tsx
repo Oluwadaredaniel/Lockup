@@ -33,6 +33,7 @@ interface Props {
   onViewXP: () => void;
   onViewProfile: () => void;
   onViewShop: () => void;
+  onViewHistory: () => void;
 }
 
 export const DashboardScreen: React.FC<Props> = ({
@@ -41,7 +42,8 @@ export const DashboardScreen: React.FC<Props> = ({
   onViewAchievements,
   onViewXP,
   onViewProfile,
-  onViewShop
+  onViewShop,
+  onViewHistory
 }) => {
   const { theme } = useTheme();
   const { user } = useUser();
@@ -120,6 +122,9 @@ export const DashboardScreen: React.FC<Props> = ({
             <Typography variant="h2" weight="black">{user?.name || 'Guardian'}</Typography>
           </TouchableOpacity>
           <View style={styles.headerActions}>
+            <TouchableOpacity onPress={onViewHistory} style={styles.shareIconButton}>
+              <Text style={styles.shareIcon}>📊</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={onViewShop} style={styles.gemBadge}>
               <Typography variant="label" color="#10B981" weight="bold">💎 {user?.gems || 0}</Typography>
             </TouchableOpacity>
