@@ -12,6 +12,7 @@ import { useTheme } from '../context/ThemeContext';
 import { LockLevel, FocusEnvironment } from '../../../../packages/core/types';
 import * as Haptics from 'expo-haptics';
 import { Typography } from '../components/ui/Typography';
+import { GuardianBear } from '../components/mascot/GuardianBear';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -43,6 +44,7 @@ export const FocusSessionSetupScreen: React.FC<Props> = ({ onBack, onStart }) =>
   const [duration, setDuration] = useState(30);
   const [selectedLockLevel, setSelectedLockLevel] = useState<LockLevel>(LockLevel.Commitment);
   const [environment, setEnvironment] = useState<FocusEnvironment>('none');
+  const [mascotState, setMascotState] = useState<'idle' | 'focus' | 'charging'>('idle');
 
   // Animation for "Hold to Commit"
   const progress = useSharedValue(0);
@@ -54,16 +56,19 @@ export const FocusSessionSetupScreen: React.FC<Props> = ({ onBack, onStart }) =>
   const cardColor = isDark ? '#0F172A' : '#FFFFFF';
   const borderColor = isDark ? '#1E293B' : '#E2E8F0';
 
-  const gesture = Gesture.Tap()
+  const gesture = Gesture.LongPress()
+    .minDuration(0)
     .onBegin(() => {
       scale.value = withSpring(0.95);
       progress.value = withTiming(1, { duration: 1500 });
+      runOnJS(setMascotState)('charging');
       runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
     })
     .onFinalize(() => {
       scale.value = withSpring(1);
       if (progress.value < 1) {
         progress.value = withTiming(0, { duration: 300 });
+        runOnJS(setMascotState)('idle');
       } else {
         runOnJS(Haptics.notificationAsync)(Haptics.NotificationFeedbackType.Success);
         runOnJS(onStart)({ selectedTask, duration, selectedLockLevel, environment });
@@ -98,6 +103,13 @@ export const FocusSessionSetupScreen: React.FC<Props> = ({ onBack, onStart }) =>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+
+        <View style={{ alignItems: 'center', marginBottom: 32 }}>
+          <GuardianBear state={mascotState} size={150} />
+          <Typography variant="body" weight="bold" color="#64748B" style={{ marginTop: 16 }}>
+            The Guardian is waiting.
+          </Typography>
+        </View>
 
         {/* Task Selection */}
         <View style={styles.section}>

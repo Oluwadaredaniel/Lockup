@@ -4,19 +4,34 @@ import Svg, { G, Circle, Path, Rect, Ellipse, Defs, Filter, FeGaussianBlur, FeMe
 import { useTheme } from '../../context/ThemeContext';
 
 interface Props {
-  state?: 'focus' | 'idle' | 'alert' | 'disappointed';
+  state?: 'focus' | 'idle' | 'alert' | 'disappointed' | 'charging';
   size?: number;
   animate?: boolean;
 }
 
 const AnimatedG = Animated.createAnimatedComponent(G);
+const AnimatedRect = Animated.createAnimatedComponent(Rect);
 
 export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300, animate = true }) => {
   const { theme } = useTheme();
   const breatheAnim = useRef(new Animated.Value(0)).current;
   const visorPulseAnim = useRef(new Animated.Value(0)).current;
+  const chargingAnim = useRef(new Animated.Value(0)).current;
   const stateFadeAnim = useRef(new Animated.Value(1)).current;
   const prevState = useRef(state);
+
+  useEffect(() => {
+    if (state === 'charging') {
+      Animated.timing(chargingAnim, {
+        toValue: 1,
+        duration: 1500,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      chargingAnim.setValue(0);
+    }
+  }, [state]);
 
   useEffect(() => {
     if (prevState.current !== state) {
@@ -151,6 +166,20 @@ export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300, ani
                 <Rect x="112" y="150" width="66" height="42" rx="21" fill={visorColor} />
                 <Rect x="222" y="150" width="66" height="42" rx="21" fill={visorColor} />
                 <Rect x="178" y="163" width="44" height="14" rx="7" fill={visorColor} />
+              </G>
+            )}
+            {state === 'charging' && (
+              <G id="visor-charging">
+                <AnimatedRect
+                  x="112" y="150" width="66" height="42" rx="21"
+                  fill={visorColor}
+                  opacity={chargingAnim}
+                />
+                <AnimatedRect
+                  x="222" y="150" width="66" height="42" rx="21"
+                  fill={visorColor}
+                  opacity={chargingAnim}
+                />
               </G>
             )}
             {state === 'idle' && (
