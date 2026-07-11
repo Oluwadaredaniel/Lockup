@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserProfile, getLevelFromXP, calculateDisciplineScore, DEFAULT_ACHIEVEMENTS } from '../../../../packages/core';
+import { UserProfile, getLevelFromXP, calculateDisciplineScore, createInitialProfile, LockLevel } from '../../../../packages/core';
 import { NotificationService } from '../services/NotificationService';
+import { UserService } from '../services/UserService';
+import { useAuth } from '../hooks/useAuth';
 
 interface UserContextType {
   user: UserProfile | null;
@@ -16,234 +18,153 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user: authUser } = useAuth();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initializing mock user for now
-    const mockUser: UserProfile = {
-      uid: '123',
-      name: 'Daniel',
-      xp: 1250,
-      level: getLevelFromXP(1250),
-      disciplineScore: 850,
-      streak: 5,
-      lastActive: new Date(),
-      completedSessions: 12,
-      failedSessions: 2,
-      weeklyActivity: [40, 70, 45, 90, 65, 30, 80],
-      dailyXPGoal: 50,
-      notificationsEnabled: true,
-      achievements: [
-        { ...DEFAULT_ACHIEVEMENTS[0], unlocked: true, date: 'Oct 12' },
-        { ...DEFAULT_ACHIEVEMENTS[1], unlocked: true, date: 'Oct 19' },
-        { ...DEFAULT_ACHIEVEMENTS[2], unlocked: true, date: 'Oct 20' },
-        ...DEFAULT_ACHIEVEMENTS.slice(3)
-      ],
-      gems: 450,
-    };
-    setUser(mockUser);
-    setLoading(false);
+    if (!authUser) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
 
-    // Request Notifications
-    NotificationService.registerForPushNotificationsAsync().then(token => {
-      if (token) console.log('Push Token:', token);
+    setLoading(true);
+    const unsubscribe = UserService.subscribeToProfile(authUser.uid, (profile) => {
+      setUser(profile);
+      setLoading(false);
+      checkStreak(profile);
     });
 
-    checkStreak(mockUser);
-  }, []);
+    return unsubscribe;
+  }, [authUser]);
+
+  useEffect(() => {
+    if (authUser && !user && !loading) {
+      UserService.getUserProfile(authUser.uid).then(profile => {
+        if (!profile) {
+          const initialProfile = createInitialProfile(authUser.uid, authUser.email?.split('@')[0] || 'Guardian');
+          UserService.createUserProfile(initialProfile);
+        }
+      });
+    }
+  }, [authUser, user, loading]);
 
   const checkStreak = (currentUser: UserProfile) => {
+    if (!currentUser.lastActive) return;
     const lastActive = new Date(currentUser.lastActive);
     const today = new Date();
 
-    // Check if probation has ended
     if (currentUser.probationUntil && new Date(currentUser.probationUntil) <= today) {
-      setUser(prev => prev ? { ...prev, probationUntil: undefined } : null);
+      UserService.updateProfile(currentUser.uid, { probationUntil: undefined });
     }
 
     const diffTime = Math.abs(today.getTime() - lastActive.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays > 1) {
-      // Streak at risk!
       NotificationService.sendInstantNotification(
         "Streak at Risk! 🔥",
         "Your streak is about to break. Complete a session now to save it!"
       );
 
       if (diffDays > 2) {
-        // Streak broken
-        setUser(prev => prev ? { ...prev, streak: 0 } : null);
+        UserService.updateProfile(currentUser.uid, { streak: 0 });
         NotificationService.sendInstantNotification(
           "Streak Broken ❄️",
-          "You missed a few days and your streak has reset. The Guardian Bear is waiting for you to start fresh."
+          "You missed a few days and your streak has reset."
         );
       }
     }
   };
 
   const addXP = (amount: number) => {
-    setUser(prev => {
-      if (!prev) return null;
-
-      // Halve XP if on probation
-      const finalAmount = prev.probationUntil ? Math.floor(amount / 2) : amount;
-      const newXP = Math.max(0, prev.xp + finalAmount);
-
-      // Goal Check
-      if (prev.xp % prev.dailyXPGoal + finalAmount >= prev.dailyXPGoal) {
-        NotificationService.sendInstantNotification(
-          "Goal Achieved! 🏆",
-          "You've hit your daily focus goal. The Guardian Bear is proud."
-        );
-      }
-
-      return {
-        ...prev,
-        xp: newXP,
-        level: getLevelFromXP(newXP),
-      };
+    if (!user) return;
+    const finalAmount = user.probationUntil ? Math.floor(amount / 2) : amount;
+    const newXP = Math.max(0, user.xp + finalAmount);
+    UserService.updateProfile(user.uid, {
+      xp: newXP,
+      level: getLevelFromXP(newXP),
     });
   };
 
   const unlockAchievement = (id: string) => {
-    setUser(prev => {
-      if (!prev) return null;
-      const isAlreadyUnlocked = prev.achievements.find(a => a.id === id)?.unlocked;
-      if (isAlreadyUnlocked) return prev;
+    if (!user) return;
+    const isAlreadyUnlocked = user.achievements.find(a => a.id === id)?.unlocked;
+    if (isAlreadyUnlocked) return;
 
-      NotificationService.sendInstantNotification(
-        "Achievement Unlocked! 🏅",
-        `Congratulations! You've earned: ${prev.achievements.find(a => a.id === id)?.title}`
-      );
-
-      return {
-        ...prev,
-        achievements: prev.achievements.map(a =>
-          a.id === id ? { ...a, unlocked: true, date: new Date().toLocaleDateString() } : a
-        ),
-        gems: prev.gems + 50, // Reward for achievement
-      };
+    UserService.updateProfile(user.uid, {
+      achievements: user.achievements.map(a =>
+        a.id === id ? { ...a, unlocked: true, date: new Date().toLocaleDateString() } : a
+      ),
+      gems: user.gems + 50,
     });
   };
 
   const completeSession = (amount: number) => {
-    setUser(prev => {
-      if (!prev) return null;
+    if (!user) return;
+    const finalXP = user.probationUntil ? Math.floor(amount / 2) : amount;
+    const newXP = user.xp + finalXP;
+    const newCompleted = user.completedSessions + 1;
+    const newStreak = user.probationUntil ? user.streak : user.streak + 1;
+    const newScore = calculateDisciplineScore(newCompleted, user.failedSessions, newStreak);
 
-      const finalXP = prev.probationUntil ? Math.floor(amount / 2) : amount;
-      const newXP = prev.xp + finalXP;
-      const newCompleted = prev.completedSessions + 1;
+    const todayIndex = (new Date().getDay() + 6) % 7;
+    const newActivity = [...user.weeklyActivity];
+    newActivity[todayIndex] = Math.min(100, newActivity[todayIndex] + 10);
 
-      // If on probation, streak doesn't increase
-      const newStreak = prev.probationUntil ? prev.streak : prev.streak + 1;
-
-      const newScore = calculateDisciplineScore(newCompleted, prev.failedSessions, newStreak);
-
-      const todayIndex = (new Date().getDay() + 6) % 7; // Mon is 0
-      const newActivity = [...prev.weeklyActivity];
-      newActivity[todayIndex] = Math.min(100, newActivity[todayIndex] + 10);
-
-      // Achievement check: First session
-      if (newCompleted === 1) {
-        setTimeout(() => unlockAchievement('1'), 500);
-      }
-
-      return {
-        ...prev,
-        xp: newXP,
-        level: getLevelFromXP(newXP),
-        completedSessions: newCompleted,
-        disciplineScore: newScore,
-        streak: newStreak,
-        weeklyActivity: newActivity,
-        lastActive: new Date(),
-      };
+    UserService.updateProfile(user.uid, {
+      xp: newXP,
+      level: getLevelFromXP(newXP),
+      completedSessions: newCompleted,
+      disciplineScore: newScore,
+      streak: newStreak,
+      weeklyActivity: newActivity,
+      lastActive: new Date(),
     });
+
+    if (newCompleted === 1) unlockAchievement('1');
   };
 
   const failSession = (lockLevel: LockLevel) => {
-    setUser(prev => {
-      if (!prev) return null;
+    if (!user) return;
+    let xpPenalty = lockLevel === LockLevel.Commitment ? 20 : (lockLevel === LockLevel.Strict ? 100 : 0);
+    const newXP = Math.max(0, user.xp - xpPenalty);
+    const newFailed = user.failedSessions + 1;
+    const streakReset = lockLevel === LockLevel.Strict;
+    const newStreak = streakReset ? 0 : user.streak;
+    const newScore = calculateDisciplineScore(user.completedSessions, newFailed, newStreak);
 
-      let xpPenalty = 0;
-      let streakReset = false;
-
-      if (lockLevel === LockLevel.Commitment) {
-        xpPenalty = 20;
-      } else if (lockLevel === LockLevel.Strict) {
-        xpPenalty = 100;
-        streakReset = true;
-      }
-
-      const newXP = Math.max(0, prev.xp - xpPenalty);
-      const newFailed = prev.failedSessions + 1;
-      const newStreak = streakReset ? 0 : prev.streak;
-      const newScore = calculateDisciplineScore(prev.completedSessions, newFailed, newStreak);
-
-      NotificationService.sendInstantNotification(
-        "Session Failed 🚨",
-        streakReset ? "Streak Reset. Discipline probation active." : "The Guardian Bear is disappointed."
-      );
-
-      return {
-        ...prev,
-        xp: newXP,
-        failedSessions: newFailed,
-        disciplineScore: newScore,
-        streak: newStreak,
-        lastActive: new Date(),
-      };
+    UserService.updateProfile(user.uid, {
+      xp: newXP,
+      failedSessions: newFailed,
+      disciplineScore: newScore,
+      streak: newStreak,
+      lastActive: new Date(),
     });
   };
 
   const triggerOverride = () => {
-    setUser(prev => {
-      if (!prev) return null;
+    if (!user) return;
+    const probationUntil = new Date();
+    probationUntil.setDate(probationUntil.getDate() + 3);
 
-      const xpPenalty = 150;
-      const probationDays = 3;
-      const probationUntil = new Date();
-      probationUntil.setDate(probationUntil.getDate() + probationDays);
-
-      const newXP = Math.max(0, prev.xp - xpPenalty);
-      const newFailed = prev.failedSessions + 1;
-      const newScore = calculateDisciplineScore(prev.completedSessions, newFailed, 0);
-
-      NotificationService.sendInstantNotification(
-        "Emergency Override Triggered ⚠️",
-        "-150 XP and 3-day Discipline Probation active."
-      );
-
-      return {
-        ...prev,
-        xp: newXP,
-        failedSessions: newFailed,
-        disciplineScore: newScore,
-        streak: 0,
-        probationUntil,
-        lastActive: new Date(),
-      };
+    UserService.updateProfile(user.uid, {
+      xp: Math.max(0, user.xp - 150),
+      failedSessions: user.failedSessions + 1,
+      disciplineScore: calculateDisciplineScore(user.completedSessions, user.failedSessions + 1, 0),
+      streak: 0,
+      probationUntil,
+      lastActive: new Date(),
     });
   };
 
   const updateSettings = (settings: Partial<UserProfile>) => {
-    setUser(prev => {
-      if (!prev) return null;
-      return { ...prev, ...settings };
-    });
+    if (user) UserService.updateProfile(user.uid, settings);
   };
 
   return (
     <UserContext.Provider value={{ user, addXP, completeSession, failSession, triggerOverride, updateSettings, unlockAchievement, loading }}>
-      {children}
-    </UserContext.Provider>
-  );
-};
-
-  return (
-    <UserContext.Provider value={{ user, addXP, completeSession, failSession, updateSettings, unlockAchievement, loading }}>
       {children}
     </UserContext.Provider>
   );
