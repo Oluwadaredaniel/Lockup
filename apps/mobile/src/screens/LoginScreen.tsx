@@ -29,6 +29,8 @@ export const LoginScreen: React.FC<Props> = ({ onLogin, onSignUp }) => {
   const { login, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [mascotState, setMascotState] = useState<'idle' | 'focus' | 'disappointed'>('idle');
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
@@ -41,12 +43,23 @@ export const LoginScreen: React.FC<Props> = ({ onLogin, onSignUp }) => {
   }, []);
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      setMascotState('disappointed');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return;
+    }
+
+    setError(null);
+    setMascotState('focus');
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (email && password) {
+
+    try {
       await login(email, password);
-      // App.tsx will handle the state change based on authUser
-    } else {
-      onLogin(); // Fallback for debugging if needed
+    } catch (e: any) {
+      setError(e.message || 'Login failed. Check your credentials.');
+      setMascotState('disappointed');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
 
@@ -65,10 +78,16 @@ export const LoginScreen: React.FC<Props> = ({ onLogin, onSignUp }) => {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <GuardianBear state="idle" size={120} />
+            <GuardianBear state={mascotState} size={120} />
             <Typography variant="h1" weight="black" style={{ marginTop: 16 }}>Welcome Back</Typography>
             <Typography variant="body" color="#64748B" style={{ marginTop: 4 }}>Sign in to continue your journey</Typography>
           </View>
+
+          {error && (
+            <View style={styles.errorContainer}>
+              <Typography variant="caption" color="white" weight="bold">{error}</Typography>
+            </View>
+          )}
 
           <Animated.View
             style={[
@@ -163,6 +182,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#64748B',
     marginTop: 4,
+  },
+  errorContainer: {
+    backgroundColor: '#EF4444',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 20,
+    alignItems: 'center',
   },
   form: {
     padding: 24,
