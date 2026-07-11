@@ -14,6 +14,7 @@ import { GuardianBear } from '../components/mascot/GuardianBear';
 import { Typography } from '../components/ui/Typography';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import * as LockupEnforcement from '../../modules/expo-module-lockup-enforcement';
 
 interface Props {
   onBack: () => void;
@@ -23,6 +24,18 @@ interface Props {
 export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
   const { theme, toggleTheme } = useTheme();
   const { user, updateSettings } = useUser();
+  const [isAccessibilityEnabled, setIsAccessibilityEnabled] = React.useState(false);
+  const [canDrawOverlays, setCanDrawOverlays] = React.useState(false);
+
+  React.useEffect(() => {
+    // Check native permissions on mount
+    try {
+      setIsAccessibilityEnabled(LockupEnforcement.isAccessibilityServiceEnabled());
+      setCanDrawOverlays(LockupEnforcement.canDrawOverlays());
+    } catch (e) {
+      console.log('Native enforcement module not available in this environment');
+    }
+  }, []);
 
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
@@ -34,7 +47,23 @@ export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
     updateSettings({ notificationsEnabled: !user?.notificationsEnabled });
   };
 
-  const SettingItem = ({ icon, title, value, type = 'chevron', onPress }: any) => (
+  const handleOpenAccessibility = () => {
+    try {
+      LockupEnforcement.openAccessibilitySettings();
+    } catch (e) {
+      alert('Accessibility settings only available on Android');
+    }
+  };
+
+  const handleOpenOverlay = () => {
+    try {
+      LockupEnforcement.openOverlaySettings();
+    } catch (e) {
+      alert('Overlay settings only available on Android');
+    }
+  };
+
+  const SettingItem = ({ icon, title, value, type = 'chevron', onPress, subtitle }: any) => (
     <TouchableOpacity
       style={[styles.settingItem, { borderBottomColor: borderColor }]}
       onPress={onPress}
@@ -42,7 +71,10 @@ export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
     >
       <View style={styles.settingLeft}>
         <Text style={styles.settingIcon}>{icon}</Text>
-        <Typography variant="body" weight="semibold">{title}</Typography>
+        <View>
+          <Typography variant="body" weight="semibold">{title}</Typography>
+          {subtitle && <Typography variant="caption" color="#64748B">{subtitle}</Typography>}
+        </View>
       </View>
       {type === 'switch' ? (
         <Switch
@@ -52,7 +84,9 @@ export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
           thumbColor={value ? '#7C3AED' : '#f4f3f4'}
         />
       ) : (
-        <Typography variant="h3" color="#94A3B8" style={{ fontWeight: '300' }}>›</Typography>
+        <Typography variant="h3" color={value ? '#10B981' : '#94A3B8'} style={{ fontWeight: 'black' }}>
+          {type === 'status' ? (value ? '✓' : '!') : '›'}
+        </Typography>
       )}
     </TouchableOpacity>
   );
@@ -102,6 +136,28 @@ export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
             <Typography variant="label" weight="semibold" color="#64748B" style={{ fontSize: 10, marginTop: 4 }}>Score</Typography>
           </View>
         </Card>
+
+        <View style={styles.settingsGroup}>
+          <Typography variant="label" color="#94A3B8" weight="black" style={{ letterSpacing: 1.5, marginBottom: 16, marginLeft: 4 }}>
+            ANDROID SHIELD (STRICT MODE)
+          </Typography>
+          <SettingItem
+            icon="🛡️"
+            title="Accessibility Service"
+            subtitle={isAccessibilityEnabled ? "Guardian is active" : "Required for app blocking"}
+            type="status"
+            value={isAccessibilityEnabled}
+            onPress={handleOpenAccessibility}
+          />
+          <SettingItem
+            icon="🪟"
+            title="Overlay Permission"
+            subtitle={canDrawOverlays ? "Shield is active" : "Required for lock screen"}
+            type="status"
+            value={canDrawOverlays}
+            onPress={handleOpenOverlay}
+          />
+        </View>
 
         {/* Settings Groups */}
         <View style={styles.settingsGroup}>
