@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   SafeAreaView,
@@ -6,11 +6,14 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext';
 import { Typography } from '../components/ui/Typography';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { UserService } from '../services/UserService';
 import * as Haptics from 'expo-haptics';
 
 interface AppItem {
@@ -20,9 +23,9 @@ interface AppItem {
   blocked: boolean;
 }
 
-const MOCK_APPS: AppItem[] = [
-  { id: '1', name: 'TikTok', packageName: 'com.zhiliaoapp.musically', blocked: true },
-  { id: '2', name: 'Instagram', packageName: 'com.instagram.android', blocked: true },
+const KNOWN_APPS: AppItem[] = [
+  { id: '1', name: 'TikTok', packageName: 'com.zhiliaoapp.musically', blocked: false },
+  { id: '2', name: 'Instagram', packageName: 'com.instagram.android', blocked: false },
   { id: '3', name: 'X (Twitter)', packageName: 'com.twitter.android', blocked: false },
   { id: '4', name: 'Facebook', packageName: 'com.facebook.katana', blocked: false },
   { id: '5', name: 'YouTube', packageName: 'com.google.android.youtube', blocked: false },
@@ -35,18 +38,39 @@ interface Props {
 
 export const BlocklistSettingsScreen: React.FC<Props> = ({ onBack }) => {
   const { theme } = useTheme();
-  const [apps, setApps] = useState<AppItem[]>(MOCK_APPS);
+  const { user } = useUser();
+  const [apps, setApps] = useState<AppItem[]>(KNOWN_APPS);
   const [search, setSearch] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  const isDark = theme === 'dark';
-  const bgColor = isDark ? '#020617' : '#FAF8FF';
-  const borderColor = isDark ? '#1E293B' : '#E2E8F0';
+  useEffect(() => {
+    if (user?.defaultBlocklist) {
+      setApps(prev => prev.map(app => ({
+        ...app,
+        blocked: user.defaultBlocklist!.includes(app.packageName)
+      })));
+    }
+  }, [user]);
 
   const toggleApp = (id: string) => {
     Haptics.selectionAsync();
     setApps(prev => prev.map(app =>
       app.id === id ? { ...app, blocked: !app.blocked } : app
     ));
+  };
+
+  const saveBlocklist = async () => {
+    if (!user) return;
+    setSaving(true);
+    const blockedPackageNames = apps.filter(a => a.blocked).map(a => a.packageName);
+    try {
+      await UserService.updateProfile(user.uid, { defaultBlocklist: blockedPackageNames });
+      onBack();
+    } catch (e) {
+      console.error('Error saving blocklist:', e);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const filteredApps = apps.filter(app =>
@@ -106,7 +130,7 @@ export const BlocklistSettingsScreen: React.FC<Props> = ({ onBack }) => {
       />
 
       <View style={styles.footer}>
-        <Button title="Save Blocklist" onPress={onBack} />
+        <Button title="Save Blocklist" onPress={saveBlocklist} loading={saving} />
       </View>
     </SafeAreaView>
   );

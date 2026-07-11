@@ -35,6 +35,7 @@ export interface UserProfile {
   achievements: Achievement[];
   gems: number; // Currency for shop
   probationUntil?: Date; // For Discipline Probation
+  defaultBlocklist?: string[]; // Custom set of blocked apps
 }
 
 /**
