@@ -13,7 +13,9 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../hooks/useAuth';
 import { GuardianBear } from '../components/mascot/GuardianBear';
-import { ActivityIndicator } from 'react-native';
+import { Typography } from '../components/ui/Typography';
+import { Button } from '../components/ui/Button';
+import * as Haptics from 'expo-haptics';
 
 interface Props {
   onLogin: () => void;
@@ -27,13 +29,35 @@ export const SignupScreen: React.FC<Props> = ({ onLogin, onSignUpComplete }) => 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [mascotState, setMascotState] = useState<'idle' | 'focus' | 'disappointed'>('idle');
 
   const handleSignup = async () => {
-    if (email && password) {
-       await signup(email, password);
-       // App.tsx will handle the state change
-    } else {
-       onSignUpComplete();
+    if (!name || !email || !password || !confirmPassword) {
+      setError('Please fill in all fields');
+      setMascotState('disappointed');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setMascotState('disappointed');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return;
+    }
+
+    setError(null);
+    setMascotState('focus');
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    try {
+      await signup(email, password);
+      // In production, we'd also save the 'name' to profile
+    } catch (e: any) {
+      setError(e.message || 'Signup failed.');
+      setMascotState('disappointed');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
 
@@ -52,10 +76,16 @@ export const SignupScreen: React.FC<Props> = ({ onLogin, onSignUpComplete }) => 
       >
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-            <GuardianBear state="focus" size={100} />
-            <Text style={[styles.title, { color: textColor }]}>Start Your Journey</Text>
-            <Text style={styles.subtitle}>Begin building unshakeable discipline today</Text>
+            <GuardianBear state={mascotState} size={100} />
+            <Typography variant="h1" weight="black" textAlign="center" style={{ marginTop: 16 }}>Start Your Journey</Typography>
+            <Typography variant="body" color="#64748B" textAlign="center">Begin building unshakeable discipline today</Typography>
           </View>
+
+          {error && (
+            <View style={styles.errorContainer}>
+              <Typography variant="caption" color="white" weight="bold">{error}</Typography>
+            </View>
+          )}
 
           <View style={[styles.form, { backgroundColor: cardColor, borderColor }]}>
             <View style={styles.inputGroup}>
@@ -106,18 +136,12 @@ export const SignupScreen: React.FC<Props> = ({ onLogin, onSignUpComplete }) => 
               />
             </View>
 
-            <TouchableOpacity
-              style={[styles.signUpButton, loading && { opacity: 0.7 }]}
+            <Button
+              title="Create Account"
               onPress={handleSignup}
-              activeOpacity={0.8}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text style={styles.signUpButtonText}>Create Account</Text>
-              )}
-            </TouchableOpacity>
+              loading={loading}
+              style={{ marginTop: 12 }}
+            />
 
             <View style={styles.termsContainer}>
               <Text style={styles.termsText}>
@@ -167,6 +191,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
     paddingHorizontal: 20,
+  },
+  errorContainer: {
+    backgroundColor: '#EF4444',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 20,
+    alignItems: 'center',
   },
   form: {
     padding: 24,
