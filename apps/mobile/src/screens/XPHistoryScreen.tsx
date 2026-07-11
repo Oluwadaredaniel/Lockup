@@ -1,29 +1,32 @@
-import React from 'react';
-import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { useUser } from '../context/UserContext';
 import { Typography } from '../components/ui/Typography';
 import { Card } from '../components/ui/Card';
+import { XPService } from '../services/XPService';
+import { XPTransaction } from '../../../../packages/core';
 
 interface Props {
   onBack: () => void;
 }
 
-const TRANSACTIONS = [
-  { id: '1', reason: 'Deep Work Session', amount: 40, date: 'Today, 2:30 PM', type: 'gain' },
-  { id: '2', reason: 'Daily Streak Bonus', amount: 50, date: 'Today, 8:00 AM', type: 'gain' },
-  { id: '3', reason: 'Focus Commitment', amount: 20, date: 'Yesterday, 5:45 PM', type: 'gain' },
-  { id: '4', reason: 'Abandoned Session (Lvl 2)', amount: -10, date: 'Yesterday, 11:20 AM', type: 'loss' },
-  { id: '5', reason: 'Morning Reading', amount: 20, date: 'Oct 22, 7:15 AM', type: 'gain' },
-  { id: '6', reason: 'Coding Session', amount: 60, date: 'Oct 21, 9:00 PM', type: 'gain' },
-];
-
 export const XPHistoryScreen: React.FC<Props> = ({ onBack }) => {
   const { theme } = useTheme();
   const { user } = useUser();
+  const [transactions, setTransactions] = useState<XPTransaction[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      XPService.getTransactionHistory(user.uid)
+        .then(setTransactions)
+        .finally(() => setLoading(false));
+    }
+  }, [user]);
+
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
-  const borderColor = isDark ? '#1E293B' : '#E2E8F0';
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
@@ -47,24 +50,30 @@ export const XPHistoryScreen: React.FC<Props> = ({ onBack }) => {
 
         <Typography variant="h3" weight="black" style={{ marginBottom: 20 }}>Recent Transactions</Typography>
 
-        {TRANSACTIONS.map(item => (
-          <Card key={item.id} style={styles.transactionCard} padding={16}>
-            <View style={styles.iconContainer}>
-              <Text style={styles.icon}>{item.type === 'gain' ? '✨' : '⚠️'}</Text>
-            </View>
-            <View style={styles.details}>
-              <Typography variant="body" weight="bold">{item.reason}</Typography>
-              <Typography variant="caption" color="#64748B">{item.date}</Typography>
-            </View>
-            <Typography
-              variant="body"
-              weight="black"
-              color={item.type === 'gain' ? '#10B981' : '#EF4444'}
-            >
-              {item.type === 'gain' ? '+' : ''}{item.amount}
-            </Typography>
-          </Card>
-        ))}
+        {loading ? (
+          <ActivityIndicator color="#7C3AED" size="large" />
+        ) : (
+          transactions.map(item => (
+            <Card key={item.id} style={styles.transactionCard} padding={16}>
+              <View style={styles.iconContainer}>
+                <Text style={styles.icon}>{item.amount >= 0 ? '✨' : '⚠️'}</Text>
+              </View>
+              <View style={styles.details}>
+                <Typography variant="body" weight="bold">{item.reason}</Typography>
+                <Typography variant="caption" color="#64748B">
+                  {item.createdAt ? new Date((item.createdAt as any).seconds * 1000).toLocaleString() : 'N/A'}
+                </Typography>
+              </View>
+              <Typography
+                variant="body"
+                weight="black"
+                color={item.amount >= 0 ? '#10B981' : '#EF4444'}
+              >
+                {item.amount >= 0 ? '+' : ''}{item.amount}
+              </Typography>
+            </Card>
+          ))
+        )}
       </ScrollView>
     </SafeAreaView>
   );

@@ -2,11 +2,12 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile, getLevelFromXP, calculateDisciplineScore, createInitialProfile, LockLevel } from '../../../../packages/core';
 import { NotificationService } from '../services/NotificationService';
 import { UserService } from '../services/UserService';
+import { XPService } from '../services/XPService';
 import { useAuth } from '../hooks/useAuth';
 
 interface UserContextType {
   user: UserProfile | null;
-  addXP: (amount: number) => void;
+  addXP: (amount: number, reason?: string) => void;
   completeSession: (amount: number) => void;
   failSession: (lockLevel: LockLevel) => void;
   triggerOverride: () => void;
@@ -78,13 +79,21 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const addXP = (amount: number) => {
+  const addXP = (amount: number, reason: string = 'General Activity') => {
     if (!user) return;
     const finalAmount = user.probationUntil ? Math.floor(amount / 2) : amount;
     const newXP = Math.max(0, user.xp + finalAmount);
+
     UserService.updateProfile(user.uid, {
       xp: newXP,
       level: getLevelFromXP(newXP),
+    });
+
+    XPService.logTransaction({
+      userId: user.uid,
+      amount: finalAmount,
+      reason,
+      createdAt: new Date(),
     });
   };
 
@@ -123,6 +132,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       lastActive: new Date(),
     });
 
+    XPService.logTransaction({
+      userId: user.uid,
+      amount: finalXP,
+      reason: 'Focus Session Completed',
+      createdAt: new Date(),
+    });
+
     if (newCompleted === 1) unlockAchievement('1');
   };
 
@@ -142,6 +158,15 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       streak: newStreak,
       lastActive: new Date(),
     });
+
+    if (xpPenalty > 0) {
+      XPService.logTransaction({
+        userId: user.uid,
+        amount: -xpPenalty,
+        reason: streakReset ? 'Strict Session Failed (Streak Reset)' : 'Commitment Session Abandoned',
+        createdAt: new Date(),
+      });
+    }
   };
 
   const triggerOverride = () => {
@@ -156,6 +181,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       streak: 0,
       probationUntil,
       lastActive: new Date(),
+    });
+
+    XPService.logTransaction({
+      userId: user.uid,
+      amount: -150,
+      reason: 'Emergency Override Triggered',
+      createdAt: new Date(),
     });
   };
 
