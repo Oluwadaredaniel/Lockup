@@ -20,6 +20,7 @@ import { LockLevel, formatDuration, SessionStatus, FocusEnvironment, calculateSe
 import { NotificationService } from '../services/NotificationService';
 import { ambientAudioService } from '../services/AmbientAudioService';
 import { useUser } from '../context/UserContext';
+import * as LockupEnforcement from '../../modules/expo-module-lockup-enforcement';
 import Svg, { Circle } from 'react-native-svg';
 
 import * as Haptics from 'expo-haptics';
@@ -67,8 +68,21 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
     if (sessionData.environment !== 'none') {
       ambientAudioService.play(sessionData.environment);
     }
+
+    // Activate native Android Shield
+    try {
+      // Mock blocked apps for now - in production these come from user settings
+      const blockedApps = ['com.zhiliaoapp.musically', 'com.instagram.android', 'com.twitter.android'];
+      LockupEnforcement.setSessionActive(true, blockedApps);
+    } catch (e) {
+      console.log('Native enforcement not available');
+    }
+
     return () => {
       ambientAudioService.stop();
+      try {
+        LockupEnforcement.setSessionActive(false, []);
+      } catch (e) {}
     };
   }, []);
 

@@ -36,5 +36,14 @@ class LockupEnforcementModule : Module() {
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       context.startActivity(intent)
     }
+
+    Function("setSessionActive") { active: Boolean, blockedApps: List<String> ->
+      val context = appContext.reactContext ?: return@Function
+      val prefs = context.getSharedPreferences("LockupPrefs", Context.MODE_PRIVATE)
+      prefs.edit()
+        .putBoolean("isSessionActive", active)
+        .putStringSet("blockedApps", blockedApps.toSet())
+        .apply()
+    }
   }
 }
