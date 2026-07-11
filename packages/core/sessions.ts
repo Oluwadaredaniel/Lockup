@@ -14,10 +14,10 @@ export const calculateSessionXP = (
 
   let multiplier = 1;
   if (lockLevel === LockLevel.Commitment) multiplier = 1.5;
-  if (lockLevel === LockLevel.Strict) multiplier = 2;
+  if (lockLevel === LockLevel.Strict) multiplier = 2.0;
 
-  // Bonus for longer sessions (every 30 mins adds a small bonus)
-  const durationBonus = Math.floor(durationMinutes / 30) * 5;
+  // Bonus for longer sessions (every 30 mins adds a +10 XP bonus)
+  const durationBonus = Math.floor(durationMinutes / 30) * 10;
 
   return Math.round((BASE_XP_PER_SESSION + durationBonus) * multiplier);
 };

@@ -27,14 +27,14 @@ export const AchievementsGalleryScreen: React.FC<Props> = ({ onBack }) => {
         <TouchableOpacity onPress={onBack}>
           <Typography variant="body" weight="semibold" color="#7C3AED">Back</Typography>
         </TouchableOpacity>
-        <Typography variant="h3" weight="black">Achievements</Typography>
+        <Typography variant="h3" weight="black">Mastery Grid</Typography>
         <View style={{ width: 50 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Card style={styles.summaryCard} padding={24}>
+        <Card style={[styles.summaryCard, isDark && { borderColor: 'rgba(255,255,255,0.05)', borderWidth: 1 }]} padding={24}>
           <Typography variant="label" color="#94A3B8" weight="black" style={{ marginBottom: 16 }}>
-            {unlockedCount} / {achievements.length} ACHIEVEMENTS UNLOCKED
+            {unlockedCount} / {achievements.length} BADGES EARNED
           </Typography>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
@@ -43,13 +43,14 @@ export const AchievementsGalleryScreen: React.FC<Props> = ({ onBack }) => {
 
         <View style={styles.grid}>
           {achievements.map(item => (
-            <AchievementBadge
-              key={item.id}
-              title={item.title}
-              emoji={item.emoji}
-              unlocked={item.unlocked}
-              date={item.date}
-            />
+            <View key={item.id} style={styles.badgeWrapper}>
+              <AchievementBadge
+                title={item.title}
+                emoji={item.emoji}
+                unlocked={item.unlocked}
+                date={item.date}
+              />
+            </View>
           ))}
         </View>
       </ScrollView>
@@ -105,5 +106,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    paddingHorizontal: 4,
+  },
+  badgeWrapper: {
+    width: '30%',
+    marginBottom: 20,
+    alignItems: 'center',
   }
 });

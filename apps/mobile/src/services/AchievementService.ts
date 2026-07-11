@@ -47,8 +47,12 @@ export class AchievementService {
         return user.streak >= 30;
       case 'score_900':
         return user.disciplineScore >= 900;
+      case 'focus_10_hours':
+        return (user.completedSessions * 30) / 60 >= 10; // Mock 30min avg
       case 'focus_100_hours':
-        return user.completedSessions >= 100; // Mock volume requirement
+        return (user.completedSessions * 30) / 60 >= 100;
+      case 'block_50_distractions':
+        return user.failedSessions >= 5; // Reverse psychology check
       default:
         return false;
     }

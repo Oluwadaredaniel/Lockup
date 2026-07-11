@@ -12,7 +12,7 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
 import { useUser } from '../context/UserContext';
-import { calculateSessionXP, LockLevel, SessionStatus } from '../../../../packages/core';
+import { calculateSessionXP, LockLevel, SessionStatus, getRandomMessage } from '../../../../packages/core';
 import { Typography } from '../components/ui/Typography';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -148,7 +148,7 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
 
         <View style={styles.messageContainer}>
           <Typography variant="body" color="#64748B" textAlign="center" style={{ fontStyle: 'italic', lineHeight: 24 }}>
-            "Discipline is the bridge between goals and accomplishment."
+            "{getRandomMessage()}"
           </Typography>
         </View>
 
