@@ -7,6 +7,7 @@ interface Props {
   state?: 'focus' | 'idle' | 'alert' | 'disappointed' | 'charging';
   size?: number;
   animate?: boolean;
+  skin?: 'DEFAULT' | 'GOLDEN';
 }
 
 const AnimatedG = Animated.createAnimatedComponent(G);
@@ -99,7 +100,7 @@ export const GuardianBear: React.FC<Props> = ({ state = 'focus', size = 300, ani
   const furColor = theme === 'light' ? '#211C17' : '#F4EEE2';
   const furDeepColor = theme === 'light' ? '#38312A' : '#DCD3BF';
   const contrastColor = theme === 'light' ? '#F4EEE2' : '#14131C';
-  const visorColor = theme === 'light' ? '#5B5FEF' : '#7B80FF';
+  const visorColor = skin === 'GOLDEN' ? '#FFD700' : (theme === 'light' ? '#5B5FEF' : '#7B80FF');
   const noseColor = theme === 'light' ? '#0F0D0B' : '#F4EEE2';
 
   return (

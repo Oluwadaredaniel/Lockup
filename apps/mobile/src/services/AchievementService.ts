@@ -1,10 +1,12 @@
 import { UserProfile, Achievement } from '../../../../packages/core';
 import { UserService } from './UserService';
+import { NotificationService } from './NotificationService';
 
 export class AchievementService {
   static async checkAchievements(user: UserProfile): Promise<Achievement[]> {
     const updatedAchievements = [...user.achievements];
     let changed = false;
+    let newUnlocks: string[] = [];
 
     for (const achievement of updatedAchievements) {
       if (achievement.unlocked) continue;
@@ -13,6 +15,7 @@ export class AchievementService {
       if (isMet) {
         achievement.unlocked = true;
         achievement.date = new Date().toLocaleDateString();
+        newUnlocks.push(achievement.title);
         changed = true;
       }
     }
@@ -20,8 +23,15 @@ export class AchievementService {
     if (changed) {
       await UserService.updateProfile(user.uid, {
         achievements: updatedAchievements,
-        gems: user.gems + (updatedAchievements.filter(a => a.unlocked).length - user.achievements.filter(a => a.unlocked).length) * 50
+        gems: user.gems + newUnlocks.length * 50
       });
+
+      for (const title of newUnlocks) {
+        NotificationService.sendInstantNotification(
+          "Achievement Unlocked! 🏅",
+          `Congratulations! You've earned: ${title}`
+        );
+      }
     }
 
     return updatedAchievements;
@@ -37,7 +47,8 @@ export class AchievementService {
         return user.streak >= 30;
       case 'score_900':
         return user.disciplineScore >= 900;
-      // Add more cases as needed
+      case 'focus_100_hours':
+        return user.completedSessions >= 100; // Mock volume requirement
       default:
         return false;
     }

@@ -12,11 +12,11 @@ interface Props {
 
 const SHOP_ITEMS = [
   {
-    id: 'freeze',
-    title: 'Streak Freeze',
-    description: 'Protect your streak for one day of inactivity.',
+    id: 'streak_shield',
+    title: 'Streak Shield',
+    description: 'Automatically protects your streak for one day of inactivity.',
     price: 200,
-    emoji: '❄️'
+    emoji: '🛡️'
   },
   {
     id: 'double',
@@ -26,7 +26,7 @@ const SHOP_ITEMS = [
     emoji: '💎'
   },
   {
-    id: 'costume',
+    id: 'golden_visor',
     title: 'Golden Visor',
     description: 'A legendary golden visor for your Guardian Bear.',
     price: 1000,
@@ -42,8 +42,17 @@ export const ShopScreen: React.FC<Props> = ({ onBack }) => {
 
   const handlePurchase = (item: typeof SHOP_ITEMS[0]) => {
     if ((user?.gems || 0) >= item.price) {
-      // For now just subtract gems, logic for freeze would be in streak calc
-      updateSettings({ gems: (user?.gems || 0) - item.price });
+      const updates: any = { gems: (user?.gems || 0) - item.price };
+
+      if (item.id === 'streak_shield') {
+        updates.streakShields = (user?.streakShields || 0) + 1;
+      }
+
+      if (item.id === 'golden_visor') {
+        updates.activeSkin = 'GOLDEN';
+      }
+
+      updateSettings(updates);
       alert(`Purchased ${item.title}!`);
     } else {
       alert("Not enough gems!");

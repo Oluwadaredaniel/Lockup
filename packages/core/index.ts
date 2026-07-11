@@ -37,17 +37,27 @@ export interface UserProfile {
   probationUntil?: Date; // For Discipline Probation
   defaultBlocklist?: string[]; // Custom set of blocked apps
   league?: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'ELITE';
+  streakShields: number; // Protection from breaking streak
+  activeSkin?: 'DEFAULT' | 'GOLDEN';
 }
 
 /**
  * Returns the league based on discipline score and XP.
  */
 export const calculateLeague = (score: number, xp: number): string => {
-  if (score >= 900 && xp >= 5000) return 'ELITE';
-  if (score >= 800 && xp >= 3000) return 'PLATINUM';
-  if (score >= 650 && xp >= 1500) return 'GOLD';
-  if (score >= 400 && xp >= 500) return 'SILVER';
+  if (score >= 950 && xp >= 5000) return 'ELITE';
+  if (score >= 850 && xp >= 3000) return 'PLATINUM';
+  if (score >= 700 && xp >= 1500) return 'GOLD';
+  if (score >= 500 && xp >= 500) return 'SILVER';
   return 'BRONZE';
+};
+
+export const LEAGUE_COLORS = {
+  BRONZE: '#CD7F32',
+  SILVER: '#C0C0C0',
+  GOLD: '#FFD700',
+  PLATINUM: '#E5E4E2',
+  ELITE: '#7C3AED',
 };
 
 /**

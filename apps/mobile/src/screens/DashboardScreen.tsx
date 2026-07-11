@@ -18,7 +18,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/feedback/EmptyState';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { getDisciplineStatus, getDisciplineStatusColor, calculateLeague, UserProfile } from '../../../../packages/core';
+import { getDisciplineStatus, getDisciplineStatusColor, calculateLeague, UserProfile, LEAGUE_COLORS } from '../../../../packages/core';
 import { SocialService } from '../services/SocialService';
 
 const { width } = Dimensions.get('window');
@@ -197,7 +197,7 @@ export const DashboardScreen: React.FC<Props> = ({
           </Svg>
 
           <View style={styles.scoreContent}>
-            <GuardianBear state="idle" size={120} />
+            <GuardianBear state="idle" size={120} skin={user?.activeSkin} />
             <View style={[
               styles.statusBadge,
               { backgroundColor: getDisciplineStatusColor(disciplineScore) }
@@ -215,14 +215,14 @@ export const DashboardScreen: React.FC<Props> = ({
             <View style={styles.dailyGoalContainer}>
               <View style={styles.dailyGoalHeader}>
                 <Typography variant="label" weight="black" color="#7C3AED" style={{ fontSize: 10 }}>
-                  DAILY GOAL: {user?.xp ? (user.xp % user.dailyXPGoal) : 0} / {user?.dailyXPGoal} XP
+                  DAILY GOAL: {user?.xp ? (user.xp % (user?.dailyXPGoal || 50)) : 0} / {user?.dailyXPGoal || 50} XP
                 </Typography>
               </View>
               <View style={styles.dailyGoalBarBg}>
                 <View
                   style={[
                     styles.dailyGoalBarFill,
-                    { width: `${Math.min(100, ((user?.xp || 0) % (user?.dailyXPGoal || 50)) / (user?.dailyXPGoal || 50) * 100)}%` }
+                    { width: `${Math.min(100, (((user?.xp || 0) % (user?.dailyXPGoal || 50)) / (user?.dailyXPGoal || 50)) * 100)}%` }
                   ]}
                 />
               </View>
@@ -289,9 +289,16 @@ export const DashboardScreen: React.FC<Props> = ({
             {/* Mock Leaderboard Preview (Duolingo Style) */}
             <Card style={styles.leaderboardPreview} padding={20}>
               <View style={styles.leaderboardHeader}>
-                <Typography variant="h3" weight="black">
-                  {calculateLeague(disciplineScore, user?.xp || 0)} League
-                </Typography>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={[styles.rankCircle, { backgroundColor: (LEAGUE_COLORS as any)[calculateLeague(disciplineScore, user?.xp || 0)] || '#7C3AED' }]}>
+                    <Typography variant="label" color="white" weight="black">
+                      {calculateLeague(disciplineScore, user?.xp || 0).charAt(0)}
+                    </Typography>
+                  </View>
+                  <Typography variant="h3" weight="black">
+                    {calculateLeague(disciplineScore, user?.xp || 0)} League
+                  </Typography>
+                </View>
                 <Typography variant="caption" weight="bold" color="#7C3AED">View League</Typography>
               </View>
               <View style={styles.leaderboardList}>

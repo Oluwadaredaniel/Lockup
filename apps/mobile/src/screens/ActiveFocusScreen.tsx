@@ -18,6 +18,7 @@ import { useFocusSession } from '../hooks/useFocusSession';
 import { Typography } from '../components/ui/Typography';
 import { LockLevel, formatDuration, SessionStatus, FocusEnvironment, calculateSessionXP } from '../../../../packages/core';
 import { NotificationService } from '../services/NotificationService';
+import { ForegroundService } from '../services/ForegroundService';
 import { ambientAudioService } from '../services/AmbientAudioService';
 import { useUser } from '../context/UserContext';
 import { SessionService } from '../services/SessionService';
@@ -88,12 +89,14 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
     try {
       const blockedApps = ['com.zhiliaoapp.musically', 'com.instagram.android', 'com.twitter.android'];
       LockupEnforcement.setSessionActive(true, blockedApps);
+      ForegroundService.startFocusShield();
     } catch (e) {
       console.log('Native enforcement not available');
     }
 
     return () => {
       ambientAudioService.stop();
+      ForegroundService.stopFocusShield();
       try {
         LockupEnforcement.setSessionActive(false, []);
       } catch (e) {}
@@ -218,7 +221,7 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
         </Svg>
 
         <View style={styles.timerContent}>
-          <GuardianBear state={mascotState} size={140} />
+          <GuardianBear state={mascotState} size={140} skin={user?.activeSkin} />
           {isOverriding ? (
             <View style={{ alignItems: 'center' }}>
               <Typography variant="h1" weight="black" color="#EF4444" style={{ fontSize: 64, marginTop: 16 }}>

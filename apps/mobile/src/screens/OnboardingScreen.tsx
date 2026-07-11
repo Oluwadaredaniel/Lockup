@@ -36,10 +36,19 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
   const isLastSlide = currentSlideIndex === SLIDES.length - 1;
 
   const handleNext = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (isLastSlide) {
       onComplete();
     } else {
       flatListRef.current?.scrollToIndex({ index: currentSlideIndex + 1 });
+    }
+  };
+
+  const handleScrollEnd = (e: any) => {
+    const index = Math.round(e.nativeEvent.contentOffset.x / width);
+    if (index !== currentSlideIndex) {
+      setCurrentSlideIndex(index);
+      Haptics.selectionAsync();
     }
   };
 
@@ -53,10 +62,7 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={(e) => {
-          const index = Math.round(e.nativeEvent.contentOffset.x / width);
-          setCurrentSlideIndex(index);
-        }}
+        onMomentumScrollEnd={handleScrollEnd}
         renderItem={({ item }) => (
           <View style={styles.slide}>
             <View style={styles.illustrationContainer}>

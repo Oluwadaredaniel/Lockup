@@ -32,7 +32,7 @@ interface Props {
 
 export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContinue }) => {
   const { theme } = useTheme();
-  const { user, completeSession } = useUser();
+  const { user } = useUser();
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -45,7 +45,6 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
 
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    completeSession(xpEarned);
 
     Animated.parallel([
       Animated.spring(scaleAnim, {
@@ -111,15 +110,20 @@ export const SessionCompletionScreen: React.FC<Props> = ({ sessionData, onContin
             }
           ]}
         >
-          <Card padding={32} style={styles.rewardCard}>
+          <Card padding={24} style={styles.rewardCard}>
             <View style={styles.rewardItem}>
-              <Typography variant="label" weight="black" color="#94A3B8" style={{ letterSpacing: 1 }}>XP EARNED</Typography>
-              <Typography variant="h1" weight="black" color="#7C3AED">+{xpEarned}</Typography>
+              <Typography variant="label" weight="black" color="#94A3B8">XP</Typography>
+              <Typography variant="h2" weight="black" color="#7C3AED">+{xpEarned}</Typography>
             </View>
             <View style={styles.divider} />
             <View style={styles.rewardItem}>
-              <Typography variant="label" weight="black" color="#94A3B8" style={{ letterSpacing: 1 }}>LEVEL</Typography>
-              <Typography variant="h1" weight="black">{user?.level || 1}</Typography>
+              <Typography variant="label" weight="black" color="#94A3B8">GEMS</Typography>
+              <Typography variant="h2" weight="black" color="#10B981">+10</Typography>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.rewardItem}>
+              <Typography variant="label" weight="black" color="#94A3B8">LEVEL</Typography>
+              <Typography variant="h2" weight="black">{user?.level || 1}</Typography>
             </View>
           </Card>
         </Animated.View>

@@ -33,9 +33,9 @@ const Main = () => {
 
   useEffect(() => {
     if (!authLoading) {
-      if (authUser && (appState === 'login' || appState === 'signup')) {
+      if (authUser) {
         setAppState('dashboard');
-      } else if (!authUser && appState === 'dashboard') {
+      } else {
         setAppState('login');
       }
     }
