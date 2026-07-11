@@ -18,7 +18,8 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/feedback/EmptyState';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { getDisciplineStatus, getDisciplineStatusColor } from '../../../../packages/core';
+import { getDisciplineStatus, getDisciplineStatusColor, calculateLeague, UserProfile } from '../../../../packages/core';
+import { SocialService } from '../services/SocialService';
 
 const { width } = Dimensions.get('window');
 const GAUGE_SIZE = width * 0.7;
@@ -49,9 +50,14 @@ export const DashboardScreen: React.FC<Props> = ({
 }) => {
   const { theme } = useTheme();
   const { user } = useUser();
+  const [topUsers, setTopUsers] = React.useState<UserProfile[]>([]);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const gaugeAnim = useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    SocialService.getTopUsers(5).then(setTopUsers);
+  }, []);
 
   const hasData = !!user;
   const disciplineScore = user?.disciplineScore || 0;
@@ -283,31 +289,21 @@ export const DashboardScreen: React.FC<Props> = ({
             {/* Mock Leaderboard Preview (Duolingo Style) */}
             <Card style={styles.leaderboardPreview} padding={20}>
               <View style={styles.leaderboardHeader}>
-                <Typography variant="h3" weight="black">Bronze League</Typography>
+                <Typography variant="h3" weight="black">
+                  {calculateLeague(disciplineScore, user?.xp || 0)} League
+                </Typography>
                 <Typography variant="caption" weight="bold" color="#7C3AED">View League</Typography>
               </View>
               <View style={styles.leaderboardList}>
-                <View style={styles.leaderboardItem}>
-                  <View style={[styles.rankCircle, { backgroundColor: '#FFD700' }]}>
-                    <Typography variant="label" color="white" weight="black">1</Typography>
+                {topUsers.map((item, index) => (
+                  <View key={item.uid} style={[styles.leaderboardItem, item.uid === user?.uid && styles.currentUserItem]}>
+                    <View style={[styles.rankCircle, { backgroundColor: index === 0 ? '#FFD700' : (index === 1 ? '#C0C0C0' : '#7C3AED') }]}>
+                      <Typography variant="label" color="white" weight="black">{index + 1}</Typography>
+                    </View>
+                    <Typography variant="body" weight="bold" style={{ flex: 1, marginLeft: 12 }}>{item.name}</Typography>
+                    <Typography variant="body" weight="black">{item.xp.toLocaleString()} XP</Typography>
                   </View>
-                  <Typography variant="body" weight="bold" style={{ flex: 1, marginLeft: 12 }}>Alex R.</Typography>
-                  <Typography variant="body" weight="black">2,450 XP</Typography>
-                </View>
-                <View style={styles.leaderboardItem}>
-                  <View style={[styles.rankCircle, { backgroundColor: '#C0C0C0' }]}>
-                    <Typography variant="label" color="white" weight="black">2</Typography>
-                  </View>
-                  <Typography variant="body" weight="bold" style={{ flex: 1, marginLeft: 12 }}>Sarah M.</Typography>
-                  <Typography variant="body" weight="black">1,820 XP</Typography>
-                </View>
-                <View style={[styles.leaderboardItem, styles.currentUserItem]}>
-                  <View style={[styles.rankCircle, { backgroundColor: '#7C3AED' }]}>
-                    <Typography variant="label" color="white" weight="black">3</Typography>
-                  </View>
-                  <Typography variant="body" weight="bold" style={{ flex: 1, marginLeft: 12 }}>{user?.name} (You)</Typography>
-                  <Typography variant="body" weight="black">{user?.xp} XP</Typography>
-                </View>
+                ))}
               </View>
             </Card>
           </>
