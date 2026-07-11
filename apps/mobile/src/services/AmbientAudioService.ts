@@ -40,6 +40,16 @@ class AmbientAudioService {
     }
   }
 
+  async preload() {
+    try {
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
+        shouldDuckAndroid: true,
+      });
+    } catch (e) {}
+  }
+
   async stop() {
     if (this.sound) {
       await this.sound.unloadAsync();
