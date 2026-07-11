@@ -1,0 +1,6 @@
+{
+  "platforms": ["android"],
+  "android": {
+    "package": "expo.modules.lockupenforcement"
+  }
+}
