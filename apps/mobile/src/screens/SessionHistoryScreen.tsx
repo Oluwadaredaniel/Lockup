@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,28 +6,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext';
 import { Typography } from '../components/ui/Typography';
 import { Card } from '../components/ui/Card';
-import { LockLevel, SessionStatus, FocusEnvironment } from '../../../../packages/core';
-
-interface SessionRecord {
-  id: string;
-  name: string;
-  duration: number;
-  lockLevel: LockLevel;
-  status: SessionStatus;
-  date: string;
-  environment: FocusEnvironment;
-}
-
-const MOCK_HISTORY: SessionRecord[] = [
-  { id: '1', name: 'Deep Work', duration: 60, lockLevel: LockLevel.Strict, status: SessionStatus.Completed, date: 'Today, 10:30 AM', environment: 'lofi' },
-  { id: '2', name: 'Study', duration: 30, lockLevel: LockLevel.Commitment, status: SessionStatus.Completed, date: 'Yesterday, 4:15 PM', environment: 'rain' },
-  { id: '3', name: 'Coding', duration: 45, lockLevel: LockLevel.Strict, status: SessionStatus.Failed, date: '2 days ago, 9:00 AM', environment: 'none' },
-  { id: '4', name: 'Reading', duration: 15, lockLevel: LockLevel.Flexible, status: SessionStatus.Completed, date: '3 days ago, 8:20 PM', environment: 'library' },
-];
+import { SessionService } from '../services/SessionService';
+import { LockLevel, SessionStatus, FocusEnvironment, FocusSession } from '../../../../packages/core';
 
 interface Props {
   onBack: () => void;
@@ -35,15 +21,29 @@ interface Props {
 
 export const SessionHistoryScreen: React.FC<Props> = ({ onBack }) => {
   const { theme } = useTheme();
+  const { user } = useUser();
+  const [history, setHistory] = useState<FocusSession[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      SessionService.getUserHistory(user.uid)
+        .then(setHistory)
+        .finally(() => setLoading(false));
+    }
+  }, [user]);
+
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#020617' : '#FAF8FF';
 
-  const renderItem = ({ item }: { item: SessionRecord }) => (
+  const renderItem = ({ item }: { item: FocusSession }) => (
     <Card style={styles.recordCard} padding={16}>
       <View style={styles.recordHeader}>
         <View>
           <Typography variant="body" weight="black">{item.name}</Typography>
-          <Typography variant="caption" color="#94A3B8">{item.date}</Typography>
+          <Typography variant="caption" color="#94A3B8">
+            {item.startedAt ? new Date((item.startedAt as any).seconds * 1000).toLocaleDateString() : 'N/A'}
+          </Typography>
         </View>
         <View style={[
           styles.statusBadge,
@@ -73,24 +73,32 @@ export const SessionHistoryScreen: React.FC<Props> = ({ onBack }) => {
         <View style={{ width: 40 }} />
       </View>
 
-      <FlatList
-        data={MOCK_HISTORY}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContent}
-        ListHeaderComponent={() => (
-          <View style={styles.statsOverview}>
-            <View style={styles.statItem}>
-              <Typography variant="h2" weight="black">12.5</Typography>
-              <Typography variant="label" color="#94A3B8">TOTAL HOURS</Typography>
+      {loading ? (
+        <ActivityIndicator size="large" color="#7C3AED" style={{ marginTop: 50 }} />
+      ) : (
+        <FlatList
+          data={history}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={() => (
+            <View style={styles.statsOverview}>
+              <View style={styles.statItem}>
+                <Typography variant="h2" weight="black">
+                  {(history.reduce((acc, s) => acc + (s.status === SessionStatus.Completed ? s.duration : 0), 0) / 60).toFixed(1)}
+                </Typography>
+                <Typography variant="label" color="#94A3B8">TOTAL HOURS</Typography>
+              </View>
+              <View style={styles.statItem}>
+                <Typography variant="h2" weight="black">
+                  {history.length > 0 ? Math.round((history.filter(s => s.status === SessionStatus.Completed).length / history.length) * 100) : 0}%
+                </Typography>
+                <Typography variant="label" color="#94A3B8">SUCCESS RATE</Typography>
+              </View>
             </View>
-            <View style={styles.statItem}>
-              <Typography variant="h2" weight="black">85%</Typography>
-              <Typography variant="label" color="#94A3B8">SUCCESS RATE</Typography>
-            </View>
-          </View>
-        )}
-      />
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 };

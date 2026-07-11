@@ -20,6 +20,7 @@ import { LockLevel, formatDuration, SessionStatus, FocusEnvironment, calculateSe
 import { NotificationService } from '../services/NotificationService';
 import { ambientAudioService } from '../services/AmbientAudioService';
 import { useUser } from '../context/UserContext';
+import { SessionService } from '../services/SessionService';
 import * as LockupEnforcement from '../../modules/expo-module-lockup-enforcement';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -51,6 +52,7 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
   const [isOverriding, setIsOverriding] = useState(false);
   const [overrideSecondsRemaining, setOverrideSecondsRemaining] = useState(180);
   const [isMuted, setIsMuted] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const overrideTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const totalSeconds = sessionData.duration * 60;
@@ -69,9 +71,21 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
       ambientAudioService.play(sessionData.environment);
     }
 
+    // Initialize Session in Firestore
+    if (user) {
+      SessionService.startSession({
+        userId: user.uid,
+        name: sessionData.selectedTask,
+        duration: sessionData.duration,
+        lockLevel: sessionData.selectedLockLevel,
+        status: SessionStatus.Active,
+        environment: sessionData.environment,
+        blockedApps: ['com.zhiliaoapp.musically', 'com.instagram.android', 'com.twitter.android'],
+      }).then(setSessionId);
+    }
+
     // Activate native Android Shield
     try {
-      // Mock blocked apps for now - in production these come from user settings
       const blockedApps = ['com.zhiliaoapp.musically', 'com.instagram.android', 'com.twitter.android'];
       LockupEnforcement.setSessionActive(true, blockedApps);
     } catch (e) {
@@ -88,10 +102,16 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
 
   useEffect(() => {
     if (status === SessionStatus.Completed) {
+      if (sessionId) SessionService.updateSessionStatus(sessionId, SessionStatus.Completed);
       const earnedXP = calculateSessionXP(sessionData.duration, sessionData.selectedLockLevel, SessionStatus.Completed);
       completeSession(earnedXP);
       onComplete();
     } else if (status === SessionStatus.Abandoned) {
+      if (sessionId) {
+        const finalStatus = (isOverriding && overrideSecondsRemaining <= 0) ? SessionStatus.Abandoned : SessionStatus.Failed;
+        SessionService.updateSessionStatus(sessionId, finalStatus);
+      }
+
       if (isOverriding && overrideSecondsRemaining <= 0) {
         triggerOverride();
       } else {
