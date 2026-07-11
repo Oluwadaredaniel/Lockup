@@ -62,20 +62,22 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const diffTime = Math.abs(today.getTime() - lastActive.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays > 1) {
-      NotificationService.sendInstantNotification(
-        "Streak at Risk! 🔥",
-        "Your streak is about to break. Complete a session now to save it!"
-      );
-
-      if (diffDays > 2) {
-        UserService.updateProfile(currentUser.uid, { streak: 0 });
-        NotificationService.sendInstantNotification(
-          "Streak Broken ❄️",
-          "You missed a few days and your streak has reset."
-        );
+    if (diffDays >= 1) {
+      if (diffDays >= 2) {
+        if (currentUser.streakShields > 0) {
+          UserService.updateProfile(currentUser.uid, {
+            streakShields: currentUser.streakShields - 1,
+            lastActive: new Date()
+          });
+          NotificationService.sendInstantNotification("Streak Shield Used! 🛡️", "Guardian protected your streak.");
+        } else {
+          UserService.updateProfile(currentUser.uid, { streak: 0 });
+          NotificationService.sendInstantNotification("Streak Broken ❄️", "Consistency is the path to growth. Start again.");
+        }
+      } else {
+        NotificationService.sendInstantNotification("Streak at Risk! 🔥", "Focus now to protect your streak.");
       }
     }
   };
@@ -90,18 +92,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       level: getLevelFromXP(newXP),
     });
 
-    XPService.logTransaction({
-      userId: user.uid,
-      amount: finalAmount,
-      reason,
-      createdAt: new Date(),
-    });
+    XPService.logTransaction({ userId: user.uid, amount: finalAmount, reason, createdAt: new Date() });
   };
 
   const unlockAchievement = (id: string) => {
     if (!user) return;
-    const isAlreadyUnlocked = user.achievements.find(a => a.id === id)?.unlocked;
-    if (isAlreadyUnlocked) return;
+    const achievement = user.achievements.find(a => a.id === id);
+    if (!achievement || achievement.unlocked) return;
 
     UserService.updateProfile(user.uid, {
       achievements: user.achievements.map(a =>
@@ -116,9 +113,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const finalXP = user.probationUntil ? Math.floor(amount / 2) : amount;
     const newXP = user.xp + finalXP;
     const newCompleted = user.completedSessions + 1;
-    const newStreak = user.probationUntil ? user.streak : user.streak + 1;
-    const newScore = calculateDisciplineScore(newCompleted, user.failedSessions, newStreak);
 
+    const lastActiveDate = user.lastActive ? new Date(user.lastActive) : new Date(0);
+    const isNewDay = new Date().toDateString() !== lastActiveDate.toDateString();
+    const newStreak = user.probationUntil ? user.streak : (isNewDay ? user.streak + 1 : user.streak);
+
+    const newScore = calculateDisciplineScore(newCompleted, user.failedSessions, newStreak);
     const todayIndex = (new Date().getDay() + 6) % 7;
     const newActivity = [...user.weeklyActivity];
     newActivity[todayIndex] = Math.min(100, newActivity[todayIndex] + 10);
@@ -131,23 +131,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       streak: newStreak,
       weeklyActivity: newActivity,
       lastActive: new Date(),
+      gems: user.gems + 10,
     });
 
-    XPService.logTransaction({
-      userId: user.uid,
-      amount: finalXP,
-      reason: 'Focus Session Completed',
-      createdAt: new Date(),
-    });
-
-    // Check achievements after session completion
-    AchievementService.checkAchievements({
-      ...user,
-      xp: newXP,
-      completedSessions: newCompleted,
-      disciplineScore: newScore,
-      streak: newStreak,
-    });
+    XPService.logTransaction({ userId: user.uid, amount: finalXP, reason: 'Focus Session Completed', createdAt: new Date() });
+    AchievementService.checkAchievements({ ...user, xp: newXP, completedSessions: newCompleted, disciplineScore: newScore, streak: newStreak });
   };
 
   const failSession = (lockLevel: LockLevel) => {
@@ -157,12 +145,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const newFailed = user.failedSessions + 1;
     const streakReset = lockLevel === LockLevel.Strict;
     const newStreak = streakReset ? 0 : user.streak;
-    const newScore = calculateDisciplineScore(user.completedSessions, newFailed, newStreak);
 
     UserService.updateProfile(user.uid, {
       xp: newXP,
       failedSessions: newFailed,
-      disciplineScore: newScore,
+      disciplineScore: calculateDisciplineScore(user.completedSessions, newFailed, newStreak),
       streak: newStreak,
       lastActive: new Date(),
     });
@@ -171,8 +158,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       XPService.logTransaction({
         userId: user.uid,
         amount: -xpPenalty,
-        reason: streakReset ? 'Strict Session Failed (Streak Reset)' : 'Commitment Session Abandoned',
-        createdAt: new Date(),
+        reason: streakReset ? 'Strict Session Failed' : 'Commitment Session Abandoned',
+        createdAt: new Date()
       });
     }
   };
@@ -191,12 +178,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       lastActive: new Date(),
     });
 
-    XPService.logTransaction({
-      userId: user.uid,
-      amount: -150,
-      reason: 'Emergency Override Triggered',
-      createdAt: new Date(),
-    });
+    XPService.logTransaction({ userId: user.uid, amount: -150, reason: 'Emergency Override', createdAt: new Date() });
   };
 
   const updateSettings = (settings: Partial<UserProfile>) => {
@@ -212,8 +194,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useUser = () => {
   const context = useContext(UserContext);
-  if (context === undefined) {
-    throw new Error('useUser must be used within a UserProvider');
-  }
+  if (context === undefined) throw new Error('useUser must be used within a UserProvider');
   return context;
 };
