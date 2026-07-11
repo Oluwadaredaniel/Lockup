@@ -19,9 +19,10 @@ import { SplashScreen } from './src/screens/SplashScreen';
 import { ShopScreen } from './src/screens/ShopScreen';
 import { SessionHistoryScreen } from './src/screens/SessionHistoryScreen';
 import { ShieldedSlotsScreen } from './src/screens/ShieldedSlotsScreen';
+import { BlocklistSettingsScreen } from './src/screens/BlocklistSettingsScreen';
 import { ErrorState } from './src/components/feedback/ErrorState';
 
-type AppState = 'splash' | 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share' | 'achievements' | 'xp_history' | 'focus_overlay' | 'profile' | 'shop' | 'history' | 'scheduling' | 'error';
+type AppState = 'splash' | 'onboarding' | 'login' | 'signup' | 'dashboard' | 'focus_setup' | 'active_focus' | 'session_complete' | 'share' | 'achievements' | 'xp_history' | 'focus_overlay' | 'profile' | 'shop' | 'history' | 'scheduling' | 'blocklist' | 'error';
 
 const Main = () => {
   const { theme } = useTheme();
@@ -126,6 +127,8 @@ const Main = () => {
             onAddSlot={() => console.log('Add slot')}
           />
         );
+      case 'blocklist':
+        return <BlocklistSettingsScreen onBack={() => setAppState('profile')} />;
       case 'focus_overlay':
         return <FocusActiveOverlayScreen onReturnToApp={() => setAppState('active_focus')} appName="Instagram" />;
       case 'profile':
@@ -133,6 +136,7 @@ const Main = () => {
           <ProfileScreen
             onBack={() => setAppState('dashboard')}
             onLogout={() => setAppState('login')}
+            onViewBlocklist={() => setAppState('blocklist')}
           />
         );
       default:

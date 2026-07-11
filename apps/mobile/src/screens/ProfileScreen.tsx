@@ -19,9 +19,10 @@ import * as LockupEnforcement from '../../modules/expo-module-lockup-enforcement
 interface Props {
   onBack: () => void;
   onLogout: () => void;
+  onViewBlocklist: () => void;
 }
 
-export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
+export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout, onViewBlocklist }) => {
   const { theme, toggleTheme } = useTheme();
   const { user, updateSettings } = useUser();
   const [isAccessibilityEnabled, setIsAccessibilityEnabled] = React.useState(false);
@@ -178,7 +179,7 @@ export const ProfileScreen: React.FC<Props> = ({ onBack, onLogout }) => {
             value={user?.notificationsEnabled}
             onPress={handleToggleNotifications}
           />
-          <SettingItem icon="🚫" title="Blocked Apps" />
+          <SettingItem icon="🚫" title="Blocked Apps" onPress={onViewBlocklist} />
         </View>
 
         <View style={styles.settingsGroup}>
