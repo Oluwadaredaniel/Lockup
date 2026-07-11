@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,14 @@ import {
   TouchableOpacity,
   FlatList,
   Switch,
+  ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext';
 import { Typography } from '../components/ui/Typography';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { SchedulingService } from '../services/SchedulingService';
 import { ShieldedSlot, LockLevel } from '../../../../packages/core';
 import * as Haptics from 'expo-haptics';
 
@@ -22,22 +25,26 @@ interface Props {
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-const MOCK_SLOTS: ShieldedSlot[] = [
-  { id: '1', name: 'Morning Deep Work', dayOfWeek: 1, startTime: '08:00', duration: 90, lockLevel: LockLevel.Strict, environment: 'lofi', enabled: true },
-  { id: '2', name: 'Afternoon Study', dayOfWeek: 3, startTime: '14:00', duration: 60, lockLevel: LockLevel.Commitment, environment: 'rain', enabled: false },
-];
-
 export const ShieldedSlotsScreen: React.FC<Props> = ({ onBack, onAddSlot }) => {
   const { theme } = useTheme();
-  const [slots, setSlots] = useState<ShieldedSlot[]>(MOCK_SLOTS);
+  const { user } = useUser();
+  const [slots, setSlots] = useState<ShieldedSlot[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const isDark = theme === 'dark';
-  const bgColor = isDark ? '#020617' : '#FAF8FF';
-  const borderColor = isDark ? '#1E293B' : '#E2E8F0';
+  useEffect(() => {
+    if (user) {
+      const unsubscribe = SchedulingService.subscribeToSlots(user.uid, (data) => {
+        setSlots(data);
+        setLoading(false);
+      });
+      return unsubscribe;
+    }
+  }, [user]);
 
-  const toggleSlot = (id: string) => {
+  const toggleSlot = (slot: ShieldedSlot) => {
+    if (!user) return;
     Haptics.selectionAsync();
-    setSlots(prev => prev.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s));
+    SchedulingService.updateSlot(user.uid, slot.id, { enabled: !slot.enabled });
   };
 
   const renderItem = ({ item }: { item: ShieldedSlot }) => (
@@ -51,7 +58,7 @@ export const ShieldedSlotsScreen: React.FC<Props> = ({ onBack, onAddSlot }) => {
         </View>
         <Switch
           value={item.enabled}
-          onValueChange={() => toggleSlot(item.id)}
+          onValueChange={() => toggleSlot(item)}
           trackColor={{ false: '#767577', true: '#C4B5FD' }}
           thumbColor={item.enabled ? '#7C3AED' : '#f4f3f4'}
         />
@@ -83,19 +90,23 @@ export const ShieldedSlotsScreen: React.FC<Props> = ({ onBack, onAddSlot }) => {
         </Typography>
       </View>
 
-      <FlatList
-        data={slots}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={() => (
-          <View style={styles.empty}>
-            <Typography variant="body" color="#94A3B8" textAlign="center">
-              No shielded slots scheduled yet.
-            </Typography>
-          </View>
-        )}
-      />
+      {loading ? (
+        <ActivityIndicator color="#7C3AED" size="large" style={{ marginTop: 50 }} />
+      ) : (
+        <FlatList
+          data={slots}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={() => (
+            <View style={styles.empty}>
+              <Typography variant="body" color="#94A3B8" textAlign="center">
+                No shielded slots scheduled yet.
+              </Typography>
+            </View>
+          )}
+        />
+      )}
 
       <View style={styles.footer}>
         <Button title="+ Add Shielded Slot" onPress={onAddSlot} />
