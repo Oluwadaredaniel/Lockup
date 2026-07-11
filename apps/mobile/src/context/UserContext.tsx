@@ -3,6 +3,7 @@ import { UserProfile, getLevelFromXP, calculateDisciplineScore, createInitialPro
 import { NotificationService } from '../services/NotificationService';
 import { UserService } from '../services/UserService';
 import { XPService } from '../services/XPService';
+import { AchievementService } from '../services/AchievementService';
 import { useAuth } from '../hooks/useAuth';
 
 interface UserContextType {
@@ -139,7 +140,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createdAt: new Date(),
     });
 
-    if (newCompleted === 1) unlockAchievement('1');
+    // Check achievements after session completion
+    AchievementService.checkAchievements({
+      ...user,
+      xp: newXP,
+      completedSessions: newCompleted,
+      disciplineScore: newScore,
+      streak: newStreak,
+    });
   };
 
   const failSession = (lockLevel: LockLevel) => {
