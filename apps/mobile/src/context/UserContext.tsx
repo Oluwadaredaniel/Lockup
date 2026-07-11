@@ -5,8 +5,9 @@ import { NotificationService } from '../services/NotificationService';
 interface UserContextType {
   user: UserProfile | null;
   addXP: (amount: number) => void;
-  completeSession: (xp: number) => void;
-  failSession: () => void;
+  completeSession: (amount: number) => void;
+  failSession: (lockLevel: LockLevel) => void;
+  triggerOverride: () => void;
   updateSettings: (settings: Partial<UserProfile>) => void;
   unlockAchievement: (id: string) => void;
   loading: boolean;
@@ -55,6 +56,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkStreak = (currentUser: UserProfile) => {
     const lastActive = new Date(currentUser.lastActive);
     const today = new Date();
+
+    // Check if probation has ended
+    if (currentUser.probationUntil && new Date(currentUser.probationUntil) <= today) {
+      setUser(prev => prev ? { ...prev, probationUntil: undefined } : null);
+    }
+
     const diffTime = Math.abs(today.getTime() - lastActive.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -79,10 +86,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addXP = (amount: number) => {
     setUser(prev => {
       if (!prev) return null;
-      const newXP = prev.xp + amount;
+
+      // Halve XP if on probation
+      const finalAmount = prev.probationUntil ? Math.floor(amount / 2) : amount;
+      const newXP = Math.max(0, prev.xp + finalAmount);
 
       // Goal Check
-      if (prev.xp % prev.dailyXPGoal + amount >= prev.dailyXPGoal) {
+      if (prev.xp % prev.dailyXPGoal + finalAmount >= prev.dailyXPGoal) {
         NotificationService.sendInstantNotification(
           "Goal Achieved! 🏆",
           "You've hit your daily focus goal. The Guardian Bear is proud."
@@ -121,9 +131,15 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const completeSession = (amount: number) => {
     setUser(prev => {
       if (!prev) return null;
-      const newXP = prev.xp + amount;
+
+      const finalXP = prev.probationUntil ? Math.floor(amount / 2) : amount;
+      const newXP = prev.xp + finalXP;
       const newCompleted = prev.completedSessions + 1;
-      const newScore = calculateDisciplineScore(newCompleted, prev.failedSessions, prev.streak);
+
+      // If on probation, streak doesn't increase
+      const newStreak = prev.probationUntil ? prev.streak : prev.streak + 1;
+
+      const newScore = calculateDisciplineScore(newCompleted, prev.failedSessions, newStreak);
 
       const todayIndex = (new Date().getDay() + 6) % 7; // Mon is 0
       const newActivity = [...prev.weeklyActivity];
@@ -134,41 +150,79 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setTimeout(() => unlockAchievement('1'), 500);
       }
 
-      // Goal Check
-      if (prev.xp % prev.dailyXPGoal + amount >= prev.dailyXPGoal) {
-        NotificationService.sendInstantNotification(
-          "Goal Reached! 🚀",
-          "Daily discipline target locked in."
-        );
-      }
-
       return {
         ...prev,
         xp: newXP,
         level: getLevelFromXP(newXP),
         completedSessions: newCompleted,
         disciplineScore: newScore,
+        streak: newStreak,
         weeklyActivity: newActivity,
         lastActive: new Date(),
       };
     });
   };
 
-  const failSession = () => {
+  const failSession = (lockLevel: LockLevel) => {
     setUser(prev => {
       if (!prev) return null;
+
+      let xpPenalty = 0;
+      let streakReset = false;
+
+      if (lockLevel === LockLevel.Commitment) {
+        xpPenalty = 20;
+      } else if (lockLevel === LockLevel.Strict) {
+        xpPenalty = 100;
+        streakReset = true;
+      }
+
+      const newXP = Math.max(0, prev.xp - xpPenalty);
       const newFailed = prev.failedSessions + 1;
-      const newScore = calculateDisciplineScore(prev.completedSessions, newFailed, prev.streak);
+      const newStreak = streakReset ? 0 : prev.streak;
+      const newScore = calculateDisciplineScore(prev.completedSessions, newFailed, newStreak);
 
       NotificationService.sendInstantNotification(
         "Session Failed 🚨",
-        "The Guardian Bear is disappointed. Try again when you're ready."
+        streakReset ? "Streak Reset. Discipline probation active." : "The Guardian Bear is disappointed."
       );
 
       return {
         ...prev,
+        xp: newXP,
         failedSessions: newFailed,
         disciplineScore: newScore,
+        streak: newStreak,
+        lastActive: new Date(),
+      };
+    });
+  };
+
+  const triggerOverride = () => {
+    setUser(prev => {
+      if (!prev) return null;
+
+      const xpPenalty = 150;
+      const probationDays = 3;
+      const probationUntil = new Date();
+      probationUntil.setDate(probationUntil.getDate() + probationDays);
+
+      const newXP = Math.max(0, prev.xp - xpPenalty);
+      const newFailed = prev.failedSessions + 1;
+      const newScore = calculateDisciplineScore(prev.completedSessions, newFailed, 0);
+
+      NotificationService.sendInstantNotification(
+        "Emergency Override Triggered ⚠️",
+        "-150 XP and 3-day Discipline Probation active."
+      );
+
+      return {
+        ...prev,
+        xp: newXP,
+        failedSessions: newFailed,
+        disciplineScore: newScore,
+        streak: 0,
+        probationUntil,
         lastActive: new Date(),
       };
     });
@@ -180,6 +234,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { ...prev, ...settings };
     });
   };
+
+  return (
+    <UserContext.Provider value={{ user, addXP, completeSession, failSession, triggerOverride, updateSettings, unlockAchievement, loading }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
 
   return (
     <UserContext.Provider value={{ user, addXP, completeSession, failSession, updateSettings, unlockAchievement, loading }}>

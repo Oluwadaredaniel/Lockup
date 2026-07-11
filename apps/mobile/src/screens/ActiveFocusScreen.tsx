@@ -16,9 +16,10 @@ import { useTheme } from '../context/ThemeContext';
 import { GuardianBear } from '../components/mascot/GuardianBear';
 import { useFocusSession } from '../hooks/useFocusSession';
 import { Typography } from '../components/ui/Typography';
-import { LockLevel, formatDuration, SessionStatus, FocusEnvironment } from '../../../../packages/core';
+import { LockLevel, formatDuration, SessionStatus, FocusEnvironment, calculateSessionXP } from '../../../../packages/core';
 import { NotificationService } from '../services/NotificationService';
 import { ambientAudioService } from '../services/AmbientAudioService';
+import { useUser } from '../context/UserContext';
 import Svg, { Circle } from 'react-native-svg';
 
 import * as Haptics from 'expo-haptics';
@@ -43,6 +44,7 @@ interface Props {
 
 export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, onAbandon, onSimulateDistraction }) => {
   const { theme } = useTheme();
+  const { user, completeSession, failSession, triggerOverride } = useUser();
   const { secondsRemaining, status, abandon, complete } = useFocusSession(sessionData.duration);
   const [mascotState, setMascotState] = useState<'focus' | 'alert' | 'disappointed'>('focus');
   const [isOverriding, setIsOverriding] = useState(false);
@@ -72,8 +74,15 @@ export const ActiveFocusScreen: React.FC<Props> = ({ sessionData, onComplete, on
 
   useEffect(() => {
     if (status === SessionStatus.Completed) {
+      const earnedXP = calculateSessionXP(sessionData.duration, sessionData.selectedLockLevel, SessionStatus.Completed);
+      completeSession(earnedXP);
       onComplete();
     } else if (status === SessionStatus.Abandoned) {
+      if (isOverriding && overrideSecondsRemaining <= 0) {
+        triggerOverride();
+      } else {
+        failSession(sessionData.selectedLockLevel);
+      }
       onAbandon();
     }
   }, [status]);

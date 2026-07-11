@@ -133,11 +133,22 @@ export const DashboardScreen: React.FC<Props> = ({
         </View>
 
         {/* Guardian Message (Duolingo Style) */}
-        <Card style={styles.guardianBubble} padding={16}>
-          <Typography variant="body" weight="semibold" style={{ fontStyle: 'italic' }}>
-            "You're {user?.streak} days strong, {user?.name}. Don't let the streak reset today!"
-          </Typography>
-        </Card>
+        {user?.probationUntil ? (
+          <Card style={[styles.guardianBubble, { borderLeftColor: '#EF4444', backgroundColor: 'rgba(239, 68, 68, 0.05)' }]} padding={16}>
+            <Typography variant="body" weight="black" color="#EF4444">
+              PROBATION ACTIVE
+            </Typography>
+            <Typography variant="caption" weight="bold" color="#EF4444">
+              XP earnings are halved. Focus to restore your honor.
+            </Typography>
+          </Card>
+        ) : (
+          <Card style={styles.guardianBubble} padding={16}>
+            <Typography variant="body" weight="semibold" style={{ fontStyle: 'italic' }}>
+              "You're {user?.streak} days strong, {user?.name}. Don't let the streak reset today!"
+            </Typography>
+          </Card>
+        )}
 
         {/* Central Discipline Gauge */}
         <View style={styles.gaugeContainer}>
